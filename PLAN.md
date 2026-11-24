@@ -96,14 +96,14 @@ Raíz del proyecto: `C:\dev\pendientes-uni`
 ---
 
 ### Fase 2 — Conector `.ics` (modo 0 API Key) + Motor de tareas + Calendar & Google Tasks
-- [ ] Descargar e incorporar `ical.min.js` (release oficial de `kewisch/ical.js`, licencia MPL-2.0 intacta) en `src/VendorIcal.gs`.
-- [ ] Implementar `src/IcsConnector.gs` usando `ICAL.parse()` sobre `UrlFetchApp.fetch(icsUrl)` con ventana temporal `-7` a `+120` días, manejo de `TZID`/UTC hacia `CONFIG.TIMEZONE`, extracción de `UID`, `SUMMARY`, `DESCRIPTION`, `DTSTART`/`DTEND` y autodetección de materias desde `CATEGORIES` (insertando nuevas materias en `Config_Materias` sin duplicar).
-- [ ] Implementar `src/TaskEngine.gs` con generación determinista de `Clave_Semantica`, fusión de ítems de `.ics` e IA, evaluación de `accion` (`cancelar` / `aplazar_sin_fecha`) previa a `es_pendiente` sin crear filas huérfanas, y `CHRONO_GUARD` (`msgEsMasAntiguo === true` solo anexa URLs/notas deduplicadas).
-- [ ] Implementar `src/CalendarTasksSync.gs` con:
+- [x] Descargar e incorporar `ical.min.js` (release oficial de `kewisch/ical.js`, licencia MPL-2.0 intacta) en `src/VendorIcal.gs`.
+- [x] Implementar `src/IcsConnector.gs` usando `ICAL.parse()` sobre `UrlFetchApp.fetch(icsUrl)` con ventana temporal `-7` a `+120` días, manejo de `TZID`/UTC hacia `CONFIG.TIMEZONE`, extracción de `UID`, `SUMMARY`, `DESCRIPTION`, `DTSTART`/`DTEND` y autodetección de materias desde `CATEGORIES` (insertando nuevas materias en `Config_Materias` sin duplicar).
+- [x] Implementar `src/TaskEngine.gs` con generación determinista de `Clave_Semantica`, fusión de ítems de `.ics` e IA, evaluación de `accion` (`cancelar` / `aplazar_sin_fecha`) previa a `es_pendiente` sin crear filas huérfanas, y `CHRONO_GUARD` (`msgEsMasAntiguo === true` solo anexa URLs/notas deduplicadas).
+- [x] Implementar `src/CalendarTasksSync.gs` con:
   - Creación/obtención idempotente del calendario `🎓 Pendientes Uni` y la lista de Google Tasks `🎓 Pendientes Uni`.
   - Formato obligatorio del título en Google Tasks: `[HH:mm] Actividad — Materia` (o `[Sin hora] Actividad — Materia`).
   - Sincronización bidireccional de completado: si la tarea está `completed` en Google Tasks o `Completada === true` en el Sheet, marcar ambos como completados, anteponer `[✅] ` al título del evento en Calendar y eliminar recordatorios futuros.
-- [ ] Crear `tests/smoke.mjs` con pruebas unitarias offline (usando fixtures `.ics` de Moodle y eventos simulados) que verifiquen: parseo `.ics`, autodetección de materias, `CHRONO_GUARD`, cancelación sin fila huérfana, formato `[HH:mm]` para Google Tasks y propagación `[✅]`.
+- [x] Crear `tests/smoke.mjs` con pruebas unitarias offline (usando fixtures `.ics` de Moodle y eventos simulados) que verifiquen: parseo `.ics`, autodetección de materias, `CHRONO_GUARD`, cancelación sin fila huérfana, formato `[HH:mm]` para Google Tasks y propagación `[✅]`.
 
 #### Criterio de verificación — Fase 2
 - Ejecutar `node tests/smoke.mjs` y confirmar que **100%** de los casos pasan (exit code `0`).
