@@ -1,0 +1,27 @@
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temporales y backups
+*.tmp
+*.bak
+*.log
+*.orig
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+.clasp.json
+.clasprc.json
+
+# Node.js / dependencias
+node_modules/
+npm-debug.log*
+package-lock.json
