@@ -55,13 +55,14 @@ function mergeDeduplicatedUrls_(existingUrls, incomingUrls) {
  * @private
  */
 function findExistingTask_(existingList, incomingItem, semanticKey) {
-  var refId = String(incomingItem.ID_Referencia || incomingItem.uid || '').trim();
   for (var i = 0; i < existingList.length; i++) {
     if (existingList[i].Clave_Semantica === semanticKey) {
       return existingList[i];
     }
   }
-  if (refId) {
+  var refId = String(incomingItem.ID_Referencia || incomingItem.uid || '').trim();
+  var isIcs = String(incomingItem.Origen || '').toUpperCase() === 'ICS';
+  if (refId && isIcs) {
     for (var j = 0; j < existingList.length; j++) {
       if (String(existingList[j].ID_Referencia || '').trim() === refId) {
         return existingList[j];

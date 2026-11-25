@@ -81,7 +81,9 @@ const gsFiles = [
   'src/SheetStore.gs',
   'src/IcsConnector.gs',
   'src/TaskEngine.gs',
-  'src/CalendarTasksSync.gs'
+  'src/CalendarTasksSync.gs',
+  'src/GmailConnector.gs',
+  'src/GeminiClient.gs'
 ];
 
 for (const rel of gsFiles) {
@@ -333,4 +335,104 @@ test('Propagación bidireccional [✅] entre Tasks, Sheet y Calendar', () => {
   assert.equal(prefixedTwice, '[✅] Taller 1 — Cálculo I', 'No debe duplicar [✅] ');
 });
 
-console.log(`\nResumen smoke tests: ${passed}/5 pasaron.`);
+// 6. GmailConnector: precedencia booleana EdTech frente a -category:promotions
+test('GmailConnector protege dominios EdTech frente a -category:promotions', () => {
+  const qLabel = sandbox.buildGmailSearchQuery({ GMAIL_MODE: 'label', GMAIL_LABEL: 'Universidad' });
+  assert.ok(qLabel.includes('label:"Universidad"'));
+  assert.ok(qLabel.includes('((from:eltngl.com OR from:ngl.cengage.com OR moodle OR canvas OR blackboard OR brightspace) OR (-category:promotions))'));
+
+  const qInst = sandbox.buildGmailSearchQuery({ GMAIL_MODE: 'institutional' });
+  assert.ok(qInst.includes('OR (-category:promotions))'));
+  assert.equal(sandbox.buildGmailSearchQuery({ GMAIL_MODE: 'off' }), '');
+});
+
+// 7. GeminiClient: header x-goog-api-key, rotación ante 429/503, y flujo con TaskEngine
+test('GeminiClient: header seguro, rotación de modelos y escenarios con TaskEngine', () => {
+  const calls = [];
+  let attempt = 0;
+
+  const mockFetcher = (url, opts) => {
+    calls.push({ url, headers: opts.headers || {} });
+    assert.ok(!url.includes('?key=') && !url.includes('&key='), 'API Key nunca debe ir en query string');
+    assert.equal(opts.headers['x-goog-api-key'], 'TEST_KEY_123');
+
+    if (url.endsWith('/models')) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          models: [
+            { name: 'models/gemini-2.5-flash-preview-04', supportedGenerationMethods: ['generateContent'] },
+            { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
+            { name: 'models/gemini-2.0-flash', supportedGenerationMethods: ['generateContent'] }
+          ]
+        })
+      };
+    }
+
+    attempt++;
+    if (attempt === 1) {
+      return { statusCode: 429, body: 'Rate limit' };
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        candidates: [{
+          content: {
+            parts: [{
+              text: JSON.stringify({
+                items: [
+                  {
+                    es_pendiente: true,
+                    accion: 'crear_o_actualizar',
+                    materia: 'Programación II',
+                    actividad: 'Proyecto Final',
+                    fecha_limite_iso: '2026-12-05T23:59:00-05:00',
+                    urls: ['https://github.com/ejemplo/repo']
+                  },
+                  {
+                    es_pendiente: false,
+                    accion: 'cancelar',
+                    materia: 'Programación II',
+                    actividad: 'Quiz Inexistente',
+                    fecha_limite_iso: '',
+                    urls: []
+                  }
+                ]
+              })
+            }]
+          }
+        }]
+      })
+    };
+  };
+
+  const res = sandbox.analizarTextoConGemini(
+    'Profe avisó que el Proyecto Final es el 5 dic y se cancela el Quiz Inexistente.',
+    { origen: 'WHATSAPP', idReferencia: 'wa-1', fechaMensajeIso: '2026-11-24T18:00:00-05:00' },
+    { TIMEZONE: 'America/Bogota', GEMINI_API_KEY: 'TEST_KEY_123' },
+    { fetcher: mockFetcher, runStartMs: Date.now() }
+  );
+
+  assert.equal(res.ok, true);
+  assert.equal(res.isPermanentError, false);
+  assert.equal(res.modelUsed, 'gemini-2.0-flash', 'Debe excluir preview y rotar tras 429');
+  assert.equal(res.items.length, 2);
+
+  const merged = sandbox.mergeTasksWithEngine([], res.items, { TIMEZONE: 'America/Bogota' });
+  assert.equal(merged.stats.created, 1);
+  assert.equal(merged.stats.orphanCancelledSkipped, 1);
+  assert.equal(merged.patches[0].Actividad, 'Proyecto Final');
+
+  const failFetcher = () => ({ statusCode: 503, body: 'Service Unavailable' });
+  const failRes = sandbox.analizarTextoConGemini(
+    'Aviso cualquiera',
+    { origen: 'GMAIL', idReferencia: 'g-99', fechaMensajeIso: '2026-11-24T18:00:00-05:00' },
+    { TIMEZONE: 'America/Bogota', GEMINI_API_KEY: 'TEST_KEY_123' },
+    { fetcher: failFetcher, runStartMs: Date.now() }
+  );
+  assert.equal(failRes.ok, false);
+  assert.equal(failRes.isPermanentError, false, 'Errores 503 nunca deben marcar Dead-Letter permanente');
+});
+
+console.log(`\nResumen smoke tests: ${passed}/7 pasaron.`);

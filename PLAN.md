@@ -112,14 +112,14 @@ Raíz del proyecto: `C:\dev\pendientes-uni`
 ---
 
 ### Fase 3 — Capa IA progresiva (Gmail + Gemini v5.1 + avisos WhatsApp/Chat)
-- [ ] Implementar `src/GmailConnector.gs` con soporte para modo `label` (correos reenviados bajo `label:<GMAIL_LABEL>`) y modo `institutional` (query académica directa), precedencia booleana explícita para dominios EdTech frente a `-category:promotions` y filtrado previo de `IDs_Procesados`.
-- [ ] Implementar `src/GeminiClient.gs` portando el cliente SRE v5.1:
+- [x] Implementar `src/GmailConnector.gs` con soporte para modo `label` (correos reenviados bajo `label:<GMAIL_LABEL>`) y modo `institutional` (query académica directa), precedencia booleana explícita para dominios EdTech frente a `-category:promotions` y filtrado previo de `IDs_Procesados`.
+- [x] Implementar `src/GeminiClient.gs` portando el cliente SRE v5.1:
   - Descubrimiento de modelos Flash estables vía `/models` cacheado 24 h en `PropertiesService` (excluyendo `-preview`/`-exp` salvo último recurso).
   - Envío obligatorio de API Key en header `x-goog-api-key`.
   - Rotación ante errores recuperables (`400` de modelo, `404`, `408`, `429`, `500`, `502`, `503`, `504` y excepciones de red) respetando margen de 90–120 s antes del límite de 360 s.
   - Dead-Letter estricto: errores de cuota/infraestructura nunca marcan un mensaje como error permanente.
   - Exponer `probarApiKeyGemini(apiKey)` para el Sidebar y `analizarTextoConGemini(texto, metadata)` reutilizable tanto para correos como para avisos pegados de WhatsApp/Chat.
-- [ ] Ampliar `tests/smoke.mjs` con mocks de respuesta Gemini (creación, actualización más reciente, bloqueo `CHRONO_GUARD` por mensaje antiguo, cancelación existente vs. inexistente y aplazamiento sin fecha).
+- [x] Ampliar `tests/smoke.mjs` con mocks de respuesta Gemini (creación, actualización más reciente, bloqueo `CHRONO_GUARD` por mensaje antiguo, cancelación existente vs. inexistente y aplazamiento sin fecha).
 
 #### Criterio de verificación — Fase 3
 - Ejecutar `node tests/smoke.mjs` y confirmar 100% de pruebas en verde (exit code `0`).
