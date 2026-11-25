@@ -128,19 +128,19 @@ Raíz del proyecto: `C:\dev\pendientes-uni`
 ---
 
 ### Fase 4 — Orquestador, Asistente Visual (Sidebar), Resumen Semanal y Guía
-- [ ] Implementar `src/DigestAndVersion.gs` con:
+- [x] Implementar `src/DigestAndVersion.gs` con:
   - Resumen semanal por correo agrupado en 3 bloques (*Para esta semana*, *Próximas semanas*, *Sin fecha clara o atrasadas*) deduplicado por semana ISO.
   - Verificación semanal cacheada contra `version.json` en GitHub sin bloquear la ejecución si no hay red.
-- [ ] Implementar `src/Main.gs` con:
+- [x] Implementar `src/Main.gs` con:
   - `onOpen()` creando el menú `🎓 Pendientes Uni` (*Abrir asistente*, *Sincronizar ahora*, *Pegar aviso de WhatsApp/Chat*).
   - `ejecutarSincronizacion()` protegido con `LockService.getScriptLock()`, ejecutando en orden: lectura bidireccional de completados → `IcsConnector` (si hay URL) → `GmailConnector` + `GeminiClient` (solo si hay API Key y Gmail activo) → `TaskEngine` → `SheetStore` → `CalendarTasksSync` → poda >60d → latido `A1`.
   - Funciones puente para `Sidebar.html`: `apiGetState()`, `apiSaveSettings(data)`, `apiTestGemini(key)`, `apiProcessManualNotice(text)`, `apiRunSyncNow()`, `apiToggleAutoTrigger(enabled)` (crea/borra trigger único cada 2 horas con `ScriptApp`).
-- [ ] Implementar `src/Sidebar.html` con interfaz limpia en español, pensada para usuarios sin experiencia técnica:
+- [x] Implementar `src/Sidebar.html` con interfaz limpia en español, pensada para usuarios sin experiencia técnica:
   - Sección de estado (último latido, trigger activo/inactivo, aviso si hay versión nueva).
   - Paso 1: Zona horaria + URL `.ics` del Campus Virtual + botón *"Guardar y sincronizar ahora"* (funciona sin API Key).
   - Paso 2 (IA opcional): Instrucciones breves para obtener API Key gratuita en Google AI Studio + campo protegido + botón *"Probar conexión"* + selector de etiqueta Gmail para reenvío.
   - Paso 3: Botón único *"Activar automático 24/7"* (toggle del trigger cada 2 h) y botón *"Pegar aviso de WhatsApp/Chat"* con previsualización del resultado.
-- [ ] Redactar `GUIA_ESTUDIANTES.md` (máximo 1 página escaneable) cubriendo:
+- [x] Redactar `GUIA_ESTUDIANTES.md` (máximo 1 página escaneable) cubriendo:
   1. Cómo hacer copia con el enlace `/copy`.
   2. Cómo pasar la pantalla *"Google no ha verificado esta app"* (*Opciones avanzadas → Ir a Pendientes Uni*).
   3. Cómo obtener el enlace `.ics` (Moodle / Canvas / Blackboard) y ver las tareas en Google Calendar + Google Tasks en el celular.

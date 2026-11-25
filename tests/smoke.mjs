@@ -83,7 +83,9 @@ const gsFiles = [
   'src/TaskEngine.gs',
   'src/CalendarTasksSync.gs',
   'src/GmailConnector.gs',
-  'src/GeminiClient.gs'
+  'src/GeminiClient.gs',
+  'src/DigestAndVersion.gs',
+  'src/Main.gs'
 ];
 
 for (const rel of gsFiles) {
@@ -435,4 +437,21 @@ test('GeminiClient: header seguro, rotación de modelos y escenarios con TaskEng
   assert.equal(failRes.isPermanentError, false, 'Errores 503 nunca deben marcar Dead-Letter permanente');
 });
 
-console.log(`\nResumen smoke tests: ${passed}/7 pasaron.`);
+// 8. DigestAndVersion: bloques semanales y comparación de versión
+test('DigestAndVersion agrupa en 3 bloques y compara versiones semver', () => {
+  const now = new Date('2026-11-24T12:00:00Z');
+  const groups = sandbox.groupTasksForWeeklyDigest([
+    { Materia: 'Mat', Actividad: 'Esta semana', Fecha_Limite: '2026-11-27T23:59:00Z', Completada: false, Estado: 'Pendiente' },
+    { Materia: 'Fis', Actividad: 'Próxima', Fecha_Limite: '2026-12-10T23:59:00Z', Completada: false, Estado: 'Pendiente' },
+    { Materia: 'Qui', Actividad: 'Sin fecha', Fecha_Limite: '', Completada: false, Estado: 'Pendiente' },
+    { Materia: 'Bio', Actividad: 'Ya hecha', Fecha_Limite: '2026-11-26T10:00:00Z', Completada: true, Estado: 'Completada' }
+  ], 'UTC', now);
+
+  assert.equal(groups.thisWeek.length, 1);
+  assert.equal(groups.upcoming.length, 1);
+  assert.equal(groups.overdueOrUndated.length, 1);
+  assert.equal(sandbox.isNewerVersion('1.1.0', '1.0.0'), true);
+  assert.equal(sandbox.isNewerVersion('1.0.0', '1.0.0'), false);
+});
+
+console.log(`\nResumen smoke tests: ${passed}/8 pasaron.`);
