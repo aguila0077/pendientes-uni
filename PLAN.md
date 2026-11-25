@@ -147,8 +147,8 @@ Raíz del proyecto: `C:\dev\pendientes-uni`
   4. Paso opcional: cómo crear la API Key gratuita de Gemini en 30 segundos y configurar filtro de reenvío desde el correo universitario.
 
 #### Criterio de verificación — Fase 4
-- Ejecutar `node --check` en todos los archivos `src/*.gs` y `node tests/smoke.mjs` (100% en verde).
-- Desplegar el proyecto en una **hoja de cálculo de prueba limpia** en cuenta `@gmail.com` personal (nunca en la hoja personal de producción) y ejecutar las 4 pruebas en vivo:
+- [x] Ejecutar `node --check` en todos los archivos `src/*.gs` y `node tests/smoke.mjs` (100% en verde).
+- [x] Desplegar el proyecto en una **hoja de cálculo de prueba limpia** en cuenta `@gmail.com` personal (nunca en la hoja personal de producción) y ejecutar las 4 pruebas en vivo:
   1. **Modo básico (sin API Key):** Configurar URL `.ics` desde el Sidebar → verificar creación de pestañas, fechas en formato `@`, materias autodetectadas en `Config_Materias`, eventos con hora exacta en Calendar y tareas `[HH:mm] ...` en Google Tasks.
   2. **Completado bidireccional:** Marcar 1 tarea como completada en Google Tasks → ejecutar *Sincronizar ahora* → confirmar `Completada = TRUE` en Sheet y `[✅] ` en Calendar sin duplicados.
   3. **Modo IA (con API Key):** Probar botón *"Probar conexión"*, pegar un aviso de prueba con cambio de fecha/cancelación en el Sidebar y verificar actualización correcta respetando `CHRONO_GUARD`.

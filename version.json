@@ -1,6 +1,8 @@
 {
   "latestVersion": "1.0.0",
   "releasedAt": "2026-11-24",
-  "highlights": [],
-  "templateUrl": ""
+  "highlights": [
+    "Lanzamiento inicial v1.0.0: sincronización .ics sin API Key, Google Calendar + Google Tasks y asistente visual."
+  ],
+  "templateUrl": "https://docs.google.com/spreadsheets/d/1DhkKtPDNKwgC0QXFAY8Y7drEbYd3N9_2jooVjRQVibg/copy"
 }

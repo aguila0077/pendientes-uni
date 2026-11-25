@@ -67,7 +67,7 @@ function getDefaultConfig_() {
     GMAIL_LABEL: 'Universidad',
     GEMINI_API_KEY: '',
     DIGEST_ENABLED: true,
-    VERSION_CHECK_URL: ''
+    VERSION_CHECK_URL: 'https://raw.githubusercontent.com/aguila0077/pendientes-uni/main/version.json'
   };
 }
 
