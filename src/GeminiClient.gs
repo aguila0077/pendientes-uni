@@ -147,7 +147,7 @@ function defaultGeminiFetcher_(url, options) {
 function probarApiKeyGemini(apiKey, optFetcher) {
   var cleanKey = String(apiKey || '').trim();
   if (!cleanKey) {
-    return { ok: false, message: 'Ingresa una API Key de Gemini.', models: [] };
+    return { ok: false, message: 'Pega primero tu código gratuito de Google.', models: [] };
   }
 
   var fetcher = optFetcher || defaultGeminiFetcher_;
@@ -163,16 +163,28 @@ function probarApiKeyGemini(apiKey, optFetcher) {
       var models = selectStableFlashModels(data.models || []);
       return {
         ok: true,
-        message: 'Conexión exitosa. Modelo principal: ' + (models[0] || 'gemini-2.5-flash'),
+        message: '¡Código verificado y guardado! Ya puedes leer correos y mensajes de WhatsApp.',
         models: models
       };
     }
     if (res.statusCode === 401 || res.statusCode === 403 || res.statusCode === 400) {
-      return { ok: false, message: 'API Key inválida o sin permisos (HTTP ' + res.statusCode + ').', models: [] };
+      return {
+        ok: false,
+        message: 'Ese código no funcionó. Revisa que lo hayas copiado completo desde el enlace de arriba.',
+        models: []
+      };
     }
-    return { ok: false, message: 'Gemini respondió HTTP ' + res.statusCode + '. Intenta de nuevo en unos segundos.', models: [] };
+    return {
+      ok: false,
+      message: 'No pude verificar el código en este momento. Intenta de nuevo en unos segundos.',
+      models: []
+    };
   } catch (err) {
-    return { ok: false, message: 'Error de red al conectar con Gemini: ' + err.message, models: [] };
+    return {
+      ok: false,
+      message: 'No pude conectarme para revisar el código. Revisa tu internet e intenta de nuevo.',
+      models: []
+    };
   }
 }
 

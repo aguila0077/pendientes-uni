@@ -26,11 +26,11 @@
       font-size: 13px;
       color: var(--text);
       background: var(--bg);
-      line-height: 1.4;
+      line-height: 1.45;
     }
     h2 {
       font-size: 15px;
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -44,29 +44,44 @@
     }
     .badge {
       display: inline-block;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
     }
     .badge-ok { background: var(--ok-bg); color: var(--ok-text); }
     .badge-warn { background: var(--warn-bg); color: var(--warn-text); }
-    .badge-err { background: var(--err-bg); color: var(--err-text); }
+    .auto-desc {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .last-sync-box {
+      font-size: 12px;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
     label {
       display: block;
       font-weight: 600;
       font-size: 12px;
-      margin: 8px 0 4px 0;
+      margin: 10px 0 4px 0;
     }
     input, select, textarea {
       width: 100%;
-      padding: 8px;
+      padding: 8px 10px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 12px;
       font-family: inherit;
+      background: #fff;
+      color: var(--text);
     }
-    textarea { resize: vertical; min-height: 76px; }
+    textarea { resize: vertical; min-height: 80px; }
     button {
       width: 100%;
       margin-top: 10px;
@@ -80,7 +95,7 @@
       color: #fff;
     }
     button:hover { background: var(--primary-hover); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
     .btn-secondary {
       background: #e2e8f0;
       color: var(--text);
@@ -89,109 +104,222 @@
     .btn-success { background: #16a34a; }
     .btn-success:hover { background: #15803d; }
     .hint {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
       margin-top: 4px;
     }
-    .status-box {
+    .cta-link {
+      display: inline-block;
       margin-top: 8px;
-      padding: 8px;
+      padding: 6px 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
       font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .cta-link:hover { background: #dbeafe; }
+    details.help-box {
+      margin-top: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    details.help-box summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    details.help-box ul {
+      margin: 8px 0 2px 0;
+      padding-left: 16px;
+    }
+    details.help-box li {
+      margin-bottom: 6px;
+    }
+    .status-box {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: pre-wrap;
       display: none;
     }
     .status-ok { background: var(--ok-bg); color: var(--ok-text); display: block; }
+    .status-warn { background: var(--warn-bg); color: var(--warn-text); display: block; }
     .status-err { background: var(--err-bg); color: var(--err-text); display: block; }
-    .pre-note {
-      white-space: pre-wrap;
-      font-size: 11px;
-      color: var(--muted);
-      background: #f1f5f9;
-      padding: 6px;
-      border-radius: 6px;
-      margin-top: 6px;
+    .divider {
+      border-top: 1px solid var(--border);
+      margin: 12px 0 4px 0;
     }
-    a { color: var(--primary); text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>📊 Estado del sistema</h2>
+    <h2>✨ ¿Cómo va tu cuenta?</h2>
     <div>
-      <span id="badgeTrigger" class="badge badge-warn">Automático: Inactivo</span>
-      <span id="badgeVersion" class="badge badge-ok" style="display:none;">Nueva versión disponible</span>
+      <span id="badgeAuto" class="badge badge-warn">⏸️ Automático apagado</span>
+      <span id="badgeVersion" class="badge badge-ok" style="display:none;">🎉 Hay una versión nueva</span>
     </div>
-    <div id="heartbeatBox" class="pre-note">Aún no se ha ejecutado ninguna sincronización.</div>
+    <div id="autoExplain" class="auto-desc">Apagado: por ahora solo se actualiza cuando tú le das al botón.</div>
+    <div id="lastSyncBox" class="last-sync-box">Cargando el estado de tus tareas...</div>
   </div>
 
   <div class="card">
-    <h2>1️⃣ Calendario de tu Campus (.ics)</h2>
-    <div class="hint">Funciona al 100% gratis y sin API Key.</div>
+    <h2>1️⃣ Conecta las entregas de tu universidad</h2>
+    <div class="hint">Es 100% gratis y es el único paso obligatorio para empezar.</div>
 
-    <label for="timezone">Tu zona horaria</label>
+    <label for="timezone">Tu país / hora local</label>
     <select id="timezone">
-      <option value="America/Bogota">Colombia / Perú / Ecuador (America/Bogota)</option>
-      <option value="America/Mexico_City">México Centro (America/Mexico_City)</option>
-      <option value="America/Santiago">Chile (America/Santiago)</option>
-      <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
-      <option value="Europe/Madrid">España (Europe/Madrid)</option>
-      <option value="UTC">UTC</option>
+      <option value="America/Bogota">Colombia / Perú / Ecuador</option>
+      <option value="America/Mexico_City">México (Centro)</option>
+      <option value="America/Santiago">Chile</option>
+      <option value="America/Argentina/Buenos_Aires">Argentina</option>
+      <option value="Europe/Madrid">España</option>
+      <option value="UTC">Hora universal (UTC)</option>
     </select>
 
-    <label for="icsUrl">Enlace .ics (Moodle / Canvas / Blackboard)</label>
-    <input id="icsUrl" type="url" placeholder="https://campus.../calendar/export_execute.php?...">
+    <label for="calendarLink">Enlace del calendario de tu plataforma (Moodle, Canvas o Blackboard)</label>
+    <input id="calendarLink" type="url" placeholder="Pega aquí el enlace que copiaste de tu universidad...">
 
-    <button id="btnSaveSync" onclick="saveAndSync()">Guardar y sincronizar ahora</button>
+    <details class="help-box">
+      <summary>¿No sabes dónde sacar ese enlace? Toca aquí</summary>
+      <ul>
+        <li><strong>Moodle:</strong> Entra a <em>Calendario → Exportar calendario → Todos los eventos → Obtener URL del calendario</em> y copia ese enlace.</li>
+        <li><strong>Canvas:</strong> Entra a <em>Calendario → Fuente del calendario</em> (abajo a la derecha) y copia el enlace que aparece ahí.</li>
+        <li><strong>Blackboard:</strong> Entra a <em>Calendario → Configuración</em> (ícono de engranaje) → <em>Obtener enlace externo</em> y cópialo.</li>
+      </ul>
+    </details>
+
+    <button id="btnSaveSync" onclick="saveAndSync()">Guardar y traer mis tareas ahora</button>
     <div id="msgStep1" class="status-box"></div>
   </div>
 
   <div class="card">
-    <h2>2️⃣ IA Opcional (Correos y WhatsApp)</h2>
+    <h2>2️⃣ (Opcional) Leer correos y mensajes de WhatsApp</h2>
     <div class="hint">
-      Crea tu llave gratis en 30 s en
-      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+      Actívalo si quieres que la app entienda cuando un profe cambia una fecha por correo o si quieres pegar mensajes de WhatsApp.
     </div>
 
-    <label for="geminiKey">API Key de Gemini</label>
-    <input id="geminiKey" type="password" placeholder="AIzaSy... (dejar vacío si ya está guardada)">
+    <a class="cta-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">
+      🔗 Sacar mi código gratis aquí (toma 30 seg)
+    </a>
+    <div class="hint">Inicia sesión con tu Gmail, crea tu código gratuito y pégalo abajo.</div>
 
-    <button id="btnTestGemini" class="btn-secondary" onclick="testGemini()">Probar conexión</button>
-    <div id="msgGemini" class="status-box"></div>
+    <label for="googleCode">Código gratuito de Google</label>
+    <input id="googleCode" type="password" placeholder="Pega aquí tu código gratuito de Google">
 
-    <label for="gmailMode">Lectura de correos</label>
-    <select id="gmailMode">
-      <option value="label">Por etiqueta de reenvío (Recomendado)</option>
-      <option value="institutional">Búsqueda directa en este buzón</option>
-      <option value="off">Desactivado</option>
+    <button id="btnTestGoogleCode" class="btn-secondary" onclick="testGoogleCode()">Probar y guardar código</button>
+    <div id="msgGoogleCode" class="status-box"></div>
+
+    <div class="divider"></div>
+
+    <label for="gmailMode">¿Cómo quieres que lea correos de tus profes?</label>
+    <select id="gmailMode" onchange="updateMailLabelVisibility()">
+      <option value="label">Solo correos en una carpeta/etiqueta (Recomendado)</option>
+      <option value="institutional">Buscar automáticamente en todo este Gmail</option>
+      <option value="off">No leer correos por ahora</option>
     </select>
 
-    <label for="gmailLabel">Nombre de la etiqueta en Gmail</label>
-    <input id="gmailLabel" type="text" value="Universidad">
+    <div id="gmailLabelGroup">
+      <label for="gmailLabel">Nombre de la carpeta/etiqueta en tu Gmail</label>
+      <input id="gmailLabel" type="text" value="Universidad">
+      <div class="hint">
+        Si reenvías correos de la U a este Gmail, escribe aquí el nombre de la carpeta/etiqueta donde los guardas, o déjalo en 'Universidad'.
+      </div>
+    </div>
+
+    <button id="btnSaveMail" class="btn-secondary" onclick="saveMailOptions()">Guardar opciones de correo</button>
+    <div id="msgMail" class="status-box"></div>
   </div>
 
   <div class="card">
-    <h2>3️⃣ Automático 24/7 y Avisos</h2>
-    <button id="btnTrigger" class="btn-success" onclick="toggleTrigger()">Activar automático 24/7 (cada 2 h)</button>
+    <h2>3️⃣ Que tu celular se actualice solo</h2>
+    <div class="hint">
+      Activa esto para no tener que volver a abrir esta hoja nunca más. Revisará tus entregas automáticamente cada 2 horas.
+    </div>
+    <button id="btnAutoSync" class="btn-success" onclick="toggleAutoSync()">✅ Encender actualización automática</button>
+    <div id="msgAuto" class="status-box"></div>
+  </div>
 
-    <label for="manualNotice">Pegar aviso de WhatsApp o Chat</label>
-    <textarea id="manualNotice" placeholder="Ej: Profe dijo que el parcial de Cálculo se pasa para el viernes 5pm..."></textarea>
-    <button id="btnManual" class="btn-secondary" onclick="processManual()">Analizar y guardar aviso</button>
-    <div id="msgStep3" class="status-box"></div>
+  <div class="card">
+    <h2>💬 Pegar mensaje de WhatsApp</h2>
+    <div class="hint">
+      ¿El profe mandó un aviso por WhatsApp? Pégalo aquí y lo agrego a tu calendario.
+    </div>
+
+    <div id="waLockedNotice" class="status-box status-warn" style="display:none;">
+      💡 Primero completa el Paso 2 con tu código gratuito de Google (toma 30 seg) para activar esta caja.
+    </div>
+
+    <label for="manualNotice">Mensaje del profe o grupo</label>
+    <textarea id="manualNotice" placeholder="Ej: Profe dijo que el parcial de Cálculo se pasa para el viernes a las 5pm..."></textarea>
+    <button id="btnManual" class="btn-secondary" onclick="processManual()">Agregar a mi calendario y tareas</button>
+    <div id="msgManual" class="status-box"></div>
   </div>
 
   <script>
-    let currentTriggerActive = false;
+    let currentAutoActive = false;
+    let hasGoogleCodeSaved = false;
 
-    function showMsg(elId, text, isOk) {
+    function showMsg(elId, text, type) {
       const el = document.getElementById(elId);
       el.textContent = text;
-      el.className = 'status-box ' + (isOk ? 'status-ok' : 'status-err');
+      const cls = type === 'ok' ? 'status-ok' : (type === 'warn' ? 'status-warn' : 'status-err');
+      el.className = 'status-box ' + cls;
+    }
+
+    function clearMsg(elId) {
+      const el = document.getElementById(elId);
+      el.textContent = '';
+      el.className = 'status-box';
     }
 
     function setBusy(btnId, busy, label) {
       const btn = document.getElementById(btnId);
       btn.disabled = busy;
       if (label) btn.textContent = label;
+    }
+
+    function updateMailLabelVisibility() {
+      const mode = document.getElementById('gmailMode').value;
+      document.getElementById('gmailLabelGroup').style.display = mode === 'label' ? 'block' : 'none';
+    }
+
+    function updateWhatsAppAvailability(hasCode) {
+      hasGoogleCodeSaved = Boolean(hasCode);
+      const lockedBox = document.getElementById('waLockedNotice');
+      const textarea = document.getElementById('manualNotice');
+      const btn = document.getElementById('btnManual');
+
+      lockedBox.style.display = hasGoogleCodeSaved ? 'none' : 'block';
+      textarea.disabled = !hasGoogleCodeSaved;
+      btn.disabled = !hasGoogleCodeSaved;
+    }
+
+    function updateAutoUI(active) {
+      currentAutoActive = Boolean(active);
+      const badge = document.getElementById('badgeAuto');
+      const explain = document.getElementById('autoExplain');
+      const btn = document.getElementById('btnAutoSync');
+
+      if (currentAutoActive) {
+        badge.textContent = '✅ Automático encendido';
+        badge.className = 'badge badge-ok';
+        explain.textContent = 'Tu celular se actualiza solo cada 2 horas.';
+        btn.textContent = 'Apagar actualización automática';
+        btn.className = 'btn-secondary';
+      } else {
+        badge.textContent = '⏸️ Automático apagado';
+        badge.className = 'badge badge-warn';
+        explain.textContent = 'Apagado: por ahora solo se actualiza cuando tú le das al botón.';
+        btn.textContent = '✅ Encender actualización automática';
+        btn.className = 'btn-success';
+      }
     }
 
     function renderState(state) {
@@ -210,128 +338,170 @@
         }
         tzSelect.value = cfg.TIMEZONE;
       }
-      document.getElementById('icsUrl').value = cfg.ICS_URL || '';
+
+      document.getElementById('calendarLink').value = cfg.ICS_URL || '';
       document.getElementById('gmailMode').value = cfg.GMAIL_MODE || 'label';
       document.getElementById('gmailLabel').value = cfg.GMAIL_LABEL || 'Universidad';
-      if (cfg.HAS_GEMINI_KEY) {
-        document.getElementById('geminiKey').placeholder = 'API Key guardada (escribe una nueva para cambiarla)';
-      }
+      updateMailLabelVisibility();
 
-      document.getElementById('heartbeatBox').textContent = state.heartbeatNote || 'Listo para la primera sincronización.';
-      updateTriggerUI(Boolean(state.triggerActive));
+      const hasCode = Boolean(cfg.HAS_GEMINI_KEY);
+      document.getElementById('googleCode').placeholder = hasCode
+        ? '✅ Código guardado (pega otro solo si quieres cambiarlo)'
+        : 'Pega aquí tu código gratuito de Google';
+      updateWhatsAppAvailability(hasCode);
+
+      const humanStatus = state.humanStatus || {};
+      document.getElementById('lastSyncBox').textContent =
+        humanStatus.summary || 'Todavía no hemos revisado tus tareas. Completa el Paso 1 abajo para empezar.';
+
+      updateAutoUI(Boolean(state.triggerActive));
 
       if (state.versionInfo && state.versionInfo.hasUpdate) {
         const bv = document.getElementById('badgeVersion');
-        bv.textContent = 'Nueva versión ' + state.versionInfo.latestVersion + ' disponible';
+        bv.textContent = '🎉 Hay una versión nueva (' + state.versionInfo.latestVersion + ')';
         bv.style.display = 'inline-block';
-      }
-    }
-
-    function updateTriggerUI(active) {
-      currentTriggerActive = active;
-      const badge = document.getElementById('badgeTrigger');
-      const btn = document.getElementById('btnTrigger');
-      if (active) {
-        badge.textContent = 'Automático: Activo (cada 2 h)';
-        badge.className = 'badge badge-ok';
-        btn.textContent = 'Desactivar automático 24/7';
-        btn.className = 'btn-secondary';
-      } else {
-        badge.textContent = 'Automático: Inactivo';
-        badge.className = 'badge badge-warn';
-        btn.textContent = 'Activar automático 24/7 (cada 2 h)';
-        btn.className = 'btn-success';
       }
     }
 
     function collectSettings() {
       return {
         TIMEZONE: document.getElementById('timezone').value,
-        ICS_URL: document.getElementById('icsUrl').value.trim(),
+        ICS_URL: document.getElementById('calendarLink').value.trim(),
         GMAIL_MODE: document.getElementById('gmailMode').value,
         GMAIL_LABEL: document.getElementById('gmailLabel').value.trim(),
-        GEMINI_API_KEY: document.getElementById('geminiKey').value.trim()
+        GEMINI_API_KEY: document.getElementById('googleCode').value.trim()
       };
     }
 
     function saveAndSync() {
-      setBusy('btnSaveSync', true, 'Guardando y sincronizando...');
+      const urlVal = document.getElementById('calendarLink').value.trim();
+      if (!urlVal) {
+        showMsg('msgStep1', 'Pega primero el enlace del calendario de tu universidad arriba.', 'warn');
+        return;
+      }
+
+      clearMsg('msgStep1');
+      setBusy('btnSaveSync', true, 'Trayendo tus tareas...');
       google.script.run
         .withSuccessHandler(() => {
           google.script.run
             .withSuccessHandler((syncRes) => {
-              setBusy('btnSaveSync', false, 'Guardar y sincronizar ahora');
-              showMsg(
-                'msgStep1',
-                'Listo (' + syncRes.estado + '). Nuevas: ' + syncRes.created +
-                ' | Calendar: ' + syncRes.calendarSynced + ' | Tasks: ' + syncRes.tasksSynced,
-                syncRes.ok
-              );
+              setBusy('btnSaveSync', false, 'Guardar y traer mis tareas ahora');
+              if (syncRes && syncRes.skippedLock) {
+                showMsg('msgStep1', 'Ya estoy revisando tus tareas en este momento. Espera unos segundos y vuelve a intentar.', 'warn');
+                return;
+              }
+              if (syncRes && syncRes.ok) {
+                showMsg(
+                  'msgStep1',
+                  '¡Listo! Ya revisé tus entregas.\n• Tareas nuevas: ' + syncRes.created +
+                  '\n• Actualizadas: ' + syncRes.updated +
+                  '\nYa puedes verlas en Google Calendar y Google Tasks en tu celular.',
+                  'ok'
+                );
+              } else {
+                showMsg(
+                  'msgStep1',
+                  'Guardé tu enlace, pero hubo un problema al leer algunas entregas. Revisa que el enlace esté completo e intenta de nuevo.',
+                  'warn'
+                );
+              }
               loadState();
             })
-            .withFailureHandler((err) => {
-              setBusy('btnSaveSync', false, 'Guardar y sincronizar ahora');
-              showMsg('msgStep1', 'Error al sincronizar: ' + err.message, false);
+            .withFailureHandler(() => {
+              setBusy('btnSaveSync', false, 'Guardar y traer mis tareas ahora');
+              showMsg('msgStep1', 'No pude revisar tus tareas en este momento. Intenta de nuevo en unos segundos.', 'err');
             })
             .apiRunSyncNow();
         })
         .withFailureHandler((err) => {
-          setBusy('btnSaveSync', false, 'Guardar y sincronizar ahora');
-          showMsg('msgStep1', 'Error al guardar: ' + err.message, false);
+          setBusy('btnSaveSync', false, 'Guardar y traer mis tareas ahora');
+          showMsg('msgStep1', err && err.message ? err.message : 'No pude guardar tu enlace.', 'err');
         })
         .apiSaveSettings(collectSettings());
     }
 
-    function testGemini() {
-      const key = document.getElementById('geminiKey').value.trim();
-      setBusy('btnTestGemini', true, 'Probando...');
+    function testGoogleCode() {
+      const key = document.getElementById('googleCode').value.trim();
+      setBusy('btnTestGoogleCode', true, 'Probando código...');
       google.script.run
         .withSuccessHandler((res) => {
-          setBusy('btnTestGemini', false, 'Probar conexión');
-          showMsg('msgGemini', res.message, res.ok);
+          setBusy('btnTestGoogleCode', false, 'Probar y guardar código');
+          showMsg('msgGoogleCode', res.message, res.ok ? 'ok' : 'err');
+          if (res.ok) {
+            document.getElementById('googleCode').value = '';
+            loadState();
+          }
         })
-        .withFailureHandler((err) => {
-          setBusy('btnTestGemini', false, 'Probar conexión');
-          showMsg('msgGemini', 'Error: ' + err.message, false);
+        .withFailureHandler(() => {
+          setBusy('btnTestGoogleCode', false, 'Probar y guardar código');
+          showMsg('msgGoogleCode', 'No pude probar el código en este momento. Intenta de nuevo.', 'err');
         })
         .apiTestGemini(key);
     }
 
-    function toggleTrigger() {
-      const next = !currentTriggerActive;
-      setBusy('btnTrigger', true, 'Actualizando...');
+    function saveMailOptions() {
+      setBusy('btnSaveMail', true, 'Guardando...');
+      google.script.run
+        .withSuccessHandler(() => {
+          setBusy('btnSaveMail', false, 'Guardar opciones de correo');
+          showMsg('msgMail', '¡Listo! Guardé tus opciones de correo.', 'ok');
+        })
+        .withFailureHandler(() => {
+          setBusy('btnSaveMail', false, 'Guardar opciones de correo');
+          showMsg('msgMail', 'No pude guardar las opciones de correo. Intenta de nuevo.', 'err');
+        })
+        .apiSaveSettings({
+          GMAIL_MODE: document.getElementById('gmailMode').value,
+          GMAIL_LABEL: document.getElementById('gmailLabel').value.trim()
+        });
+    }
+
+    function toggleAutoSync() {
+      const next = !currentAutoActive;
+      setBusy('btnAutoSync', true, 'Actualizando...');
       google.script.run
         .withSuccessHandler((res) => {
-          setBusy('btnTrigger', false);
-          updateTriggerUI(res.triggerActive);
-          showMsg('msgStep3', res.triggerActive ? 'Modo automático 24/7 activado.' : 'Modo automático desactivado.', true);
+          setBusy('btnAutoSync', false);
+          updateAutoUI(res.triggerActive);
+          showMsg(
+            'msgAuto',
+            res.triggerActive
+              ? '¡Listo! Tu celular se actualizará solo cada 2 horas sin que tengas que abrir esta hoja.'
+              : 'Actualización automática apagada. Cuando quieras, vuelve a encenderla aquí.',
+            'ok'
+          );
         })
-        .withFailureHandler((err) => {
-          setBusy('btnTrigger', false);
-          updateTriggerUI(currentTriggerActive);
-          showMsg('msgStep3', 'Error: ' + err.message, false);
+        .withFailureHandler(() => {
+          setBusy('btnAutoSync', false);
+          updateAutoUI(currentAutoActive);
+          showMsg('msgAuto', 'No pude cambiar la actualización automática. Intenta de nuevo.', 'err');
         })
         .apiToggleAutoTrigger(next);
     }
 
     function processManual() {
+      if (!hasGoogleCodeSaved) {
+        showMsg('msgManual', 'Primero completa el Paso 2 con tu código gratuito de Google.', 'warn');
+        return;
+      }
       const text = document.getElementById('manualNotice').value.trim();
-      setBusy('btnManual', true, 'Analizando aviso...');
+      setBusy('btnManual', true, 'Leyendo mensaje...');
       google.script.run
         .withSuccessHandler((res) => {
-          setBusy('btnManual', false, 'Analizar y guardar aviso');
+          setBusy('btnManual', false, 'Agregar a mi calendario y tareas');
           if (!res.ok) {
-            showMsg('msgStep3', res.message, false);
+            showMsg('msgManual', res.message, 'err');
             return;
           }
           document.getElementById('manualNotice').value = '';
           const summary = (res.items || []).map((i) => '• ' + i.Materia + ': ' + i.Actividad).join('\n');
-          showMsg('msgStep3', 'Guardado en tu calendario y tareas:\n' + (summary || 'Sin cambios nuevos.'), true);
+          showMsg('msgManual', '¡Listo! Agregado a tu calendario y tareas:\n' + (summary || 'Sin cambios nuevos.'), 'ok');
           loadState();
         })
-        .withFailureHandler((err) => {
-          setBusy('btnManual', false, 'Analizar y guardar aviso');
-          showMsg('msgStep3', 'Error: ' + err.message, false);
+        .withFailureHandler(() => {
+          setBusy('btnManual', false, 'Agregar a mi calendario y tareas');
+          showMsg('msgManual', 'No pude leer el mensaje en este momento. Intenta de nuevo.', 'err');
         })
         .apiProcessManualNotice(text);
     }

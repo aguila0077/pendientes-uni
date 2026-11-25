@@ -454,4 +454,39 @@ test('DigestAndVersion agrupa en 3 bloques y compara versiones semver', () => {
   assert.equal(sandbox.isNewerVersion('1.0.0', '1.0.0'), false);
 });
 
-console.log(`\nResumen smoke tests: ${passed}/8 pasaron.`);
+// 9. Pestaña 👋 Empieza_Aquí idempotente y estado humano sin tecnicismos
+test('Pestaña 👋 Empieza_Aquí idempotente y formatHeartbeatForUser en español humano', () => {
+  const mockSs = createMockSpreadsheet();
+  const sheets = sandbox.ensureSheetStructure(mockSs);
+  assert.ok(sheets['👋 Empieza_Aquí'], 'Debe crear la pestaña 👋 Empieza_Aquí');
+  assert.ok(sheets['Resumen_Tareas'], 'Debe mantener Resumen_Tareas');
+  const firstRowCount = sheets['👋 Empieza_Aquí'].getLastRow();
+  assert.ok(firstRowCount >= 7, 'Debe escribir los 4 pasos de bienvenida');
+
+  // Segunda llamada no debe borrar ni fallar
+  const sheets2 = sandbox.ensureSheetStructure(mockSs);
+  assert.equal(sheets2['👋 Empieza_Aquí'].getLastRow(), firstRowCount);
+
+  const emptyStatus = sandbox.formatHeartbeatForUser('', 'America/Bogota');
+  assert.equal(emptyStatus.hasSynced, false);
+  assert.ok(emptyStatus.summary.includes('Paso 1'));
+
+  const okNote = [
+    'Pendientes Uni — Latido de Sincronización',
+    'estado=OK',
+    'timestamp=2026-11-25T14:30:00-05:00',
+    'ics_err=0'
+  ].join('\n');
+  const okStatus = sandbox.formatHeartbeatForUser(okNote, 'America/Bogota', new Date('2026-11-25T20:00:00Z'));
+  assert.equal(okStatus.hasSynced, true);
+  assert.equal(okStatus.ok, true);
+  assert.ok(okStatus.summary.includes('Hoy a las 2:30 p. m.'), 'Debe formatear fecha legible en español');
+  assert.ok(!okStatus.summary.includes('ics_err'), 'No debe exponer tecnicismos');
+
+  const degNote = 'estado=DEGRADADO\ntimestamp=2026-11-24T09:15:00-05:00\nics_err=1';
+  const degStatus = sandbox.formatHeartbeatForUser(degNote, 'America/Bogota', new Date('2026-11-25T20:00:00Z'));
+  assert.equal(degStatus.ok, false);
+  assert.ok(!degStatus.summary.includes('DEGRADADO') && !degStatus.summary.includes('ics_err'));
+});
+
+console.log(`\nResumen smoke tests: ${passed}/9 pasaron.`);

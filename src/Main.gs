@@ -11,9 +11,8 @@ var SYNC_TRIGGER_HANDLER = 'ejecutarSincronizacion';
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('🎓 Pendientes Uni')
-    .addItem('Abrir asistente', 'mostrarSidebar')
-    .addItem('Sincronizar ahora', 'ejecutarSincronizacionManual')
-    .addItem('Pegar aviso de WhatsApp/Chat', 'mostrarSidebar')
+    .addItem('🚀 Abrir asistente (Empezar aquí)', 'mostrarSidebar')
+    .addItem('🔄 Actualizar mis tareas ahora', 'ejecutarSincronizacionManual')
     .addToUi();
 }
 
@@ -28,19 +27,29 @@ function mostrarSidebar() {
 }
 
 /**
- * Ejecución manual desde el menú con feedback visual en Sheets.
+ * Ejecución manual desde el menú con feedback visual amigable en Sheets.
  */
 function ejecutarSincronizacionManual() {
   var res = ejecutarSincronizacion();
   var ui = SpreadsheetApp.getUi();
   if (res.skippedLock) {
-    ui.alert('Ya hay una sincronización en curso. Intenta de nuevo en unos segundos.');
+    ui.alert('Ya estoy actualizando tus tareas en este momento. Espera unos segundos y revisa de nuevo.');
+    return;
+  }
+  if (res.ok) {
+    ui.alert(
+      '¡Listo! Tus tareas quedaron actualizadas.\n\n' +
+      '• Tareas nuevas: ' + res.created + '\n' +
+      '• Actualizadas: ' + res.updated + '\n\n' +
+      'Ya puedes verlas en Google Calendar y Google Tasks en tu celular.'
+    );
     return;
   }
   ui.alert(
-    'Sincronización completada (' + res.estado + ').\n' +
-    'Nuevas: ' + res.created + ' | Actualizadas: ' + res.updated +
-    ' | Calendar: ' + res.calendarSynced + ' | Tasks: ' + res.tasksSynced
+    'Revisé tus tareas, pero hubo un problema temporal con alguna conexión.\n\n' +
+    '• Tareas nuevas: ' + res.created + '\n' +
+    '• Actualizadas: ' + res.updated + '\n\n' +
+    'Intenta de nuevo en unos minutos o revisa el enlace del Paso 1.'
   );
 }
 
@@ -210,6 +219,79 @@ function ejecutarSincronizacion() {
  * ========================================================================= */
 
 /**
+ * Traduce la nota técnica A1 del latido a un mensaje claro en español para el Sidebar.
+ * @param {string} noteText
+ * @param {string=} optTz
+ * @param {Date=} optNow
+ * @return {{hasSynced: boolean, ok: boolean|null, lastSyncText: string, summary: string}}
+ */
+function formatHeartbeatForUser(noteText, optTz, optNow) {
+  var raw = String(noteText || '').trim();
+  if (!raw) {
+    return {
+      hasSynced: false,
+      ok: null,
+      lastSyncText: '',
+      summary: 'Todavía no hemos revisado tus tareas. Completa el Paso 1 abajo para empezar.'
+    };
+  }
+
+  var stateMatch = /^estado=([A-Z_]+)/m.exec(raw);
+  var tsMatch = /^timestamp=([^\r\n]+)/m.exec(raw);
+  if (!tsMatch || !tsMatch[1]) {
+    return {
+      hasSynced: false,
+      ok: null,
+      lastSyncText: '',
+      summary: 'Todavía no hemos revisado tus tareas. Completa el Paso 1 abajo para empezar.'
+    };
+  }
+
+  var tz = optTz || getUserConfig().TIMEZONE || 'UTC';
+  var tsDate = parseDateSafe(tsMatch[1].trim(), tz);
+  var nowDate = optNow instanceof Date ? optNow : new Date();
+  var formattedWhen = tsDate ? formatHumanSpanishDateTime_(tsDate, tz, nowDate) : tsMatch[1].trim();
+  var isOk = !stateMatch || stateMatch[1] === 'OK';
+
+  return {
+    hasSynced: true,
+    ok: isOk,
+    lastSyncText: formattedWhen,
+    summary: isOk
+      ? 'Última actualización: ' + formattedWhen + ' (todo al día).'
+      : 'Última actualización: ' + formattedWhen + ' (hubo un pequeño problema; puedes darle al botón para intentar de nuevo).'
+  };
+}
+
+/**
+ * Formatea una fecha/hora en español legible ("Hoy a las 2:45 p. m." o "25 de nov, 2:45 p. m.").
+ * @private
+ */
+function formatHumanSpanishDateTime_(dateObj, tz, nowDate) {
+  var months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  var isoLocal = formatIsoInTimezone(dateObj, tz);
+  var nowLocal = formatIsoInTimezone(nowDate || new Date(), tz);
+  var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(isoLocal);
+  if (!m) return isoLocal;
+
+  var datePart = m[1] + '-' + m[2] + '-' + m[3];
+  var nowPart = nowLocal.slice(0, 10);
+  var monthIdx = parseInt(m[2], 10) - 1;
+  var dayNum = parseInt(m[3], 10);
+  var hour24 = parseInt(m[4], 10);
+  var minStr = m[5];
+  var period = hour24 >= 12 ? 'p. m.' : 'a. m.';
+  var hour12 = hour24 % 12;
+  if (hour12 === 0) hour12 = 12;
+  var timeLabel = hour12 + ':' + minStr + ' ' + period;
+
+  if (datePart === nowPart) {
+    return 'Hoy a las ' + timeLabel;
+  }
+  return dayNum + ' de ' + (months[monthIdx] || m[2]) + ', ' + timeLabel;
+}
+
+/**
  * Retorna estado inicial para renderizar el Sidebar.
  * @return {Object}
  */
@@ -220,6 +302,7 @@ function apiGetState() {
   var noteA1 = ss.getSheetByName(APP_CONSTANTS.SHEETS.RESUMEN).getRange('A1').getNote() || '';
   var triggerActive = hasSyncTrigger_();
   var versionInfo = checkForUpdatesCached(config);
+  var humanStatus = formatHeartbeatForUser(noteA1, config.TIMEZONE);
 
   return {
     config: {
@@ -231,6 +314,7 @@ function apiGetState() {
       DIGEST_ENABLED: config.DIGEST_ENABLED
     },
     heartbeatNote: noteA1,
+    humanStatus: humanStatus,
     triggerActive: triggerActive,
     versionInfo: versionInfo
   };
@@ -281,12 +365,15 @@ function apiTestGemini(apiKey) {
 function apiProcessManualNotice(text) {
   var clean = String(text || '').trim();
   if (!clean) {
-    return { ok: false, message: 'Pega primero el texto del aviso.' };
+    return { ok: false, message: 'Pega primero el mensaje de WhatsApp en la caja.' };
   }
 
   var config = getUserConfig();
   if (!config.GEMINI_API_KEY) {
-    return { ok: false, message: 'Configura primero tu API Key gratuita de Gemini en el Paso 2.' };
+    return {
+      ok: false,
+      message: 'Primero completa el Paso 2 con tu código gratuito de Google para poder leer avisos de WhatsApp.'
+    };
   }
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -306,7 +393,10 @@ function apiProcessManualNotice(text) {
   );
 
   if (!aiRes.ok) {
-    return { ok: false, message: aiRes.error || 'No se pudo analizar el aviso.' };
+    return {
+      ok: false,
+      message: 'No pude leer ese mensaje en este momento. Intenta de nuevo en unos segundos.'
+    };
   }
 
   var existing = readAllTasks(ss);

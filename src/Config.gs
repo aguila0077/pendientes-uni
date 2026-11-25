@@ -5,10 +5,11 @@
 
 var APP_CONSTANTS = {
   APP_NAME: 'Pendientes Uni',
-  APP_VERSION: '1.0.0',
+  APP_VERSION: '1.0.1',
   CALENDAR_NAME: '🎓 Pendientes Uni',
   TASKS_LIST_NAME: '🎓 Pendientes Uni',
   SHEETS: {
+    WELCOME: '👋 Empieza_Aquí',
     RESUMEN: 'Resumen_Tareas',
     MATERIAS: 'Config_Materias',
     IDS_PROCESADOS: 'IDs_Procesados'
@@ -181,7 +182,7 @@ function saveUserConfig(patch) {
   if (Object.prototype.hasOwnProperty.call(patch, 'ICS_URL')) {
     var url = String(patch.ICS_URL || '').trim();
     if (url && !/^https?:\/\/.+/i.test(url)) {
-      throw new Error('ICS_URL debe iniciar con http:// o https://');
+      throw new Error('El enlace del calendario debe empezar por https:// (cópialo completo desde tu plataforma).');
     }
     next.ICS_URL = url;
   }

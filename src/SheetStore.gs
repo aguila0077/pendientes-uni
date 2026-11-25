@@ -47,9 +47,11 @@ var SHEET_SCHEMAS = {
   }
 };
 
+var WELCOME_SHEET_NAME = '👋 Empieza_Aquí';
+
 /**
- * Garantiza que las 3 pestañas existan con sus encabezados exactos y formato '@' en fechas.
- * Es idempotente y no destruye datos existentes.
+ * Garantiza que la pestaña de bienvenida y las 3 pestañas de datos existan.
+ * Es idempotente: nunca borra ni sobrescribe datos existentes.
  * @param {GoogleAppsScript.Spreadsheet.Spreadsheet=} optSpreadsheet
  * @return {Object} Mapa de hojas inicializadas.
  */
@@ -60,6 +62,11 @@ function ensureSheetStructure(optSpreadsheet) {
   }
 
   var result = {};
+  var welcomeSheet = ensureWelcomeSheet_(ss);
+  if (welcomeSheet) {
+    result[welcomeSheet.getName ? welcomeSheet.getName() : WELCOME_SHEET_NAME] = welcomeSheet;
+  }
+
   var schemaKeys = Object.keys(SHEET_SCHEMAS);
 
   for (var i = 0; i < schemaKeys.length; i++) {
@@ -75,6 +82,101 @@ function ensureSheetStructure(optSpreadsheet) {
   }
 
   return result;
+}
+
+/**
+ * Crea o conserva la primera pestaña visual 👋 Empieza_Aquí con 4 pasos simples.
+ * Nunca la borra ni sobrescribe su contenido si ya tiene datos.
+ * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} ss
+ * @return {GoogleAppsScript.Spreadsheet.Sheet|null}
+ * @private
+ */
+function ensureWelcomeSheet_(ss) {
+  var welcomeName = (typeof APP_CONSTANTS !== 'undefined' && APP_CONSTANTS.SHEETS && APP_CONSTANTS.SHEETS.WELCOME)
+    ? APP_CONSTANTS.SHEETS.WELCOME
+    : WELCOME_SHEET_NAME;
+
+  var sheet = ss.getSheetByName(welcomeName);
+  if (!sheet) {
+    sheet = ss.insertSheet(welcomeName, 0);
+  }
+  if (!sheet) return null;
+
+  if (typeof sheet.getLastRow === 'function' && sheet.getLastRow() > 0) {
+    return sheet;
+  }
+
+  var rows = [
+    ['🎓 ¡Bienvenido a Pendientes Uni!'],
+    ['Conecta tus entregas de la universidad con Google Calendar y Google Tasks en tu celular en 3 minutos (sin saber programar).'],
+    [''],
+    ['PASO 1', 'Haz clic arriba en el menú 🎓 Pendientes Uni → 🚀 Abrir asistente (Empezar aquí)'],
+    ['PASO 2', "Si Google te muestra una alerta que dice 'Google no ha verificado esta app', es normal porque es tu propia copia: haz clic en Opciones avanzadas → Ir a Pendientes Uni → Permitir"],
+    ['PASO 3', 'Sigue los 3 pasos del panel que se abre a la derecha'],
+    ['PASO 4', '¡Listo! Ya puedes cerrar esta página y ver tus tareas en Google Calendar y Google Tasks en tu celular'],
+    [''],
+    ['💡 Tip: Las demás pestañas (Resumen_Tareas, Config_Materias, IDs_Procesados) se llenan solas automáticamente. No tienes que tocarlas.']
+  ];
+
+  sheet.getRange(1, 1, rows.length, 1);
+  sheet.getRange(1, 1, 1, 2).setValues([[rows[0][0], '']]);
+  sheet.getRange(2, 1, 1, 2).setValues([[rows[1][0], '']]);
+  sheet.getRange(4, 1, 4, 2).setValues(rows.slice(3, 7));
+  sheet.getRange(9, 1, 1, 2).setValues([[rows[8][0], '']]);
+
+  try {
+    if (typeof sheet.setHiddenGridlines === 'function') sheet.setHiddenGridlines(true);
+    if (typeof sheet.setColumnWidth === 'function') {
+      sheet.setColumnWidth(1, 130);
+      sheet.setColumnWidth(2, 760);
+    }
+    var r1 = sheet.getRange(1, 1, 1, 2);
+    if (typeof r1.merge === 'function') r1.merge();
+    if (typeof r1.setBackground === 'function') r1.setBackground('#1d4ed8');
+    if (typeof r1.setFontColor === 'function') r1.setFontColor('#ffffff');
+    if (typeof r1.setFontSize === 'function') r1.setFontSize(18);
+    r1.setFontWeight('bold');
+
+    var r2 = sheet.getRange(2, 1, 1, 2);
+    if (typeof r2.merge === 'function') r2.merge();
+    if (typeof r2.setBackground === 'function') r2.setBackground('#eff6ff');
+    if (typeof r2.setFontColor === 'function') r2.setFontColor('#1e3a8a');
+    if (typeof r2.setFontSize === 'function') r2.setFontSize(11);
+    if (typeof r2.setWrap === 'function') r2.setWrap(true);
+
+    var badges = sheet.getRange(4, 1, 4, 1);
+    if (typeof badges.setBackground === 'function') badges.setBackground('#dbeafe');
+    if (typeof badges.setFontColor === 'function') badges.setFontColor('#1e40af');
+    if (typeof badges.setFontSize === 'function') badges.setFontSize(12);
+    badges.setFontWeight('bold');
+    if (typeof badges.setVerticalAlignment === 'function') badges.setVerticalAlignment('middle');
+
+    var stepsRange = sheet.getRange(4, 2, 4, 1);
+    if (typeof stepsRange.setBackground === 'function') stepsRange.setBackground('#f8fafc');
+    if (typeof stepsRange.setFontColor === 'function') stepsRange.setFontColor('#0f172a');
+    if (typeof stepsRange.setFontSize === 'function') stepsRange.setFontSize(12);
+    if (typeof stepsRange.setWrap === 'function') stepsRange.setWrap(true);
+    if (typeof stepsRange.setVerticalAlignment === 'function') stepsRange.setVerticalAlignment('middle');
+
+    var r9 = sheet.getRange(9, 1, 1, 2);
+    if (typeof r9.merge === 'function') r9.merge();
+    if (typeof r9.setFontColor === 'function') r9.setFontColor('#475569');
+    if (typeof r9.setFontSize === 'function') r9.setFontSize(10);
+    if (typeof r9.setWrap === 'function') r9.setWrap(true);
+
+    if (typeof sheet.setRowHeight === 'function') {
+      sheet.setRowHeight(1, 48);
+      sheet.setRowHeight(2, 38);
+      sheet.setRowHeight(4, 54);
+      sheet.setRowHeight(5, 72);
+      sheet.setRowHeight(6, 54);
+      sheet.setRowHeight(7, 54);
+    }
+  } catch (styleErr) {
+    // Estilo visual opcional: nunca debe bloquear la inicialización
+  }
+
+  return sheet;
 }
 
 /**

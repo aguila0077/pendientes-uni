@@ -1,8 +1,8 @@
 {
-  "latestVersion": "1.0.0",
-  "releasedAt": "2026-11-24",
+  "latestVersion": "1.0.1",
+  "releasedAt": "2026-11-25",
   "highlights": [
-    "Lanzamiento inicial v1.0.0: sincronización .ics sin API Key, Google Calendar + Google Tasks y asistente visual."
+    "Rediseño completo a prueba de principiantes: textos en español 100% humano, guía integrada para Moodle/Canvas/Blackboard, menú simplificado y pestaña visual 👋 Empieza_Aquí."
   ],
   "templateUrl": "https://docs.google.com/spreadsheets/d/1nGCviM1NnxJ_lSaAT1BQ-sH3ZC19uW1edq2WuseMN9Q/copy"
 }
