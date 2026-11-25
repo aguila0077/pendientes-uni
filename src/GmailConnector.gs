@@ -15,7 +15,7 @@ var MAX_GMAIL_THREADS_PER_RUN = 25;
  */
 function buildGmailSearchQuery(config) {
   var cfg = config || {};
-  var mode = String(cfg.GMAIL_MODE || 'label').toLowerCase();
+  var mode = String(cfg.GMAIL_MODE || 'institutional').toLowerCase();
   if (mode === 'off') return '';
 
   var edtechTerms = [];

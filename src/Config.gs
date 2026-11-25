@@ -5,7 +5,7 @@
 
 var APP_CONSTANTS = {
   APP_NAME: 'Pendientes Uni',
-  APP_VERSION: '1.0.2',
+  APP_VERSION: '1.0.3',
   CALENDAR_NAME: '🎓 Pendientes Uni',
   TASKS_LIST_NAME: '🎓 Pendientes Uni',
   SHEETS: {
@@ -64,7 +64,7 @@ function getDefaultConfig_() {
   return {
     TIMEZONE: getDefaultTimezone_(),
     ICS_URL: '',
-    GMAIL_MODE: 'label',
+    GMAIL_MODE: 'institutional',
     GMAIL_LABEL: 'Universidad',
     GEMINI_API_KEY: '',
     DIGEST_ENABLED: true,

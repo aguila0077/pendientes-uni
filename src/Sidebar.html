@@ -108,6 +108,15 @@
       color: var(--muted);
       margin-top: 4px;
     }
+    .clarify-box {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #1e3a8a;
+    }
     .cta-link {
       display: inline-block;
       margin-top: 8px;
@@ -134,7 +143,7 @@
       font-weight: 600;
       color: var(--primary);
     }
-    details.help-box ul {
+    details.help-box ul, details.help-box ol {
       margin: 8px 0 2px 0;
       padding-left: 16px;
     }
@@ -172,23 +181,18 @@
   <div class="card">
     <h2>1️⃣ Conecta tus correos y avisos de Google Chat</h2>
     <div class="hint">
-      Con tu código gratuito de Google, esta app lee automáticamente los correos de tus profesores y entiende los avisos que pegues de Google Chat.
+      Lee automáticamente los correos de tus profesores y entiende los avisos que pegues de Google Chat.
     </div>
 
     <label for="timezone">Tu país / hora local</label>
-    <select id="timezone">
-      <option value="America/Bogota">Colombia / Perú / Ecuador</option>
-      <option value="America/Mexico_City">México (Centro)</option>
-      <option value="America/Santiago">Chile</option>
-      <option value="America/Argentina/Buenos_Aires">Argentina</option>
-      <option value="Europe/Madrid">España</option>
-      <option value="UTC">Hora universal (UTC)</option>
-    </select>
+    <select id="timezone"></select>
 
     <a class="cta-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">
       🔗 Sacar mi código gratis aquí (toma 30 seg)
     </a>
-    <div class="hint">Inicia sesión con tu Gmail, crea tu código gratis y pégalo abajo.</div>
+    <div class="clarify-box">
+      Este código <strong>NO</strong> es para entrar a tu correo ni es tu contraseña: solo activa el lector inteligente (IA gratis de Google) que lee los mensajes y saca automáticamente la materia, la tarea y la fecha.
+    </div>
 
     <label for="googleCode">Código gratuito de Google</label>
     <input id="googleCode" type="password" placeholder="Pega aquí tu código gratuito de Google">
@@ -200,27 +204,36 @@
 
     <label for="gmailMode">¿Cómo quieres que lea correos de tus profes?</label>
     <select id="gmailMode" onchange="updateMailLabelVisibility()">
-      <option value="label">Solo correos en una carpeta/etiqueta (Recomendado)</option>
-      <option value="institutional">Buscar automáticamente en todo este Gmail</option>
+      <option value="institutional">Buscar automáticamente correos de clases y tareas en este Gmail (Recomendado)</option>
+      <option value="label">Solo correos guardados en una carpeta específica</option>
       <option value="off">No leer correos por ahora</option>
     </select>
 
-    <div id="gmailLabelGroup">
+    <div id="gmailLabelGroup" style="display:none;">
       <label for="gmailLabel">Nombre de la carpeta/etiqueta en tu Gmail</label>
       <input id="gmailLabel" type="text" value="Universidad">
       <div class="hint">
-        Si reenvías correos de la universidad a este Gmail, escribe aquí el nombre de la carpeta/etiqueta donde los guardas, o déjalo en 'Universidad'.
+        Si guardas correos en una carpeta/etiqueta de Gmail, escribe su nombre exacto aquí (por defecto 'Universidad').
       </div>
     </div>
 
-    <button id="btnSaveSync" onclick="saveAndSync('msgStep1')">Guardar y actualizar mis tareas ahora</button>
+    <details class="help-box">
+      <summary>¿Tus correos de la U llegan a Outlook o a otra cuenta? Toca aquí</summary>
+      <ol>
+        <li><strong>Opción rápida:</strong> Cuando un profe mande una entrega importante a tu correo universitario, simplemente reenvía ese correo a este Gmail personal y listo.</li>
+        <li><strong>Opción automática (Outlook / correo U):</strong> Entra a la configuración de tu correo de la U → <em>Correo → Reenvío</em>, escribe este Gmail y guarda.</li>
+        <li><strong>¿Ya usas una carpeta propia?</strong> Cambia la opción de arriba a <em>"Solo correos guardados en una carpeta específica"</em> y escribe su nombre.</li>
+      </ol>
+    </details>
+
+    <button id="btnSaveSync" onclick="saveAndSync('msgStep1', 'btnSaveSync')">Guardar y actualizar mis tareas ahora</button>
     <div id="msgStep1" class="status-box"></div>
   </div>
 
   <div class="card">
     <h2>2️⃣ 💬 Pegar aviso de Google Chat</h2>
     <div class="hint">
-      ¿Un profe mandó una tarea, parcial o cambio de fecha por Google Chat? Copia el mensaje, pégalo aquí y lo agrego a tu Google Calendar y Google Tasks.
+      Muchos profes avisan por el Google Chat de tu cuenta universitaria: solo copia el mensaje allá, pégalo aquí y lo agrego a tu Google Calendar y Google Tasks.
     </div>
 
     <div id="chatLockedNotice" class="status-box status-warn" style="display:none;">
@@ -239,6 +252,7 @@
       Si lo activas, esta app revisará tus correos nuevos cada 2 horas y guardará tus tareas directamente en Google Calendar y Google Tasks, sin que tengas que volver a abrir esta hoja. Si lo dejas apagado, solo buscará tareas nuevas cuando tú entres aquí y hagas clic en Actualizar.
     </div>
     <button id="btnAutoSync" class="btn-success" onclick="toggleAutoSync()">✅ Activar revisión automática cada 2 horas</button>
+    <button id="btnSyncNowCard" class="btn-secondary" onclick="saveAndSync('msgAuto', 'btnSyncNowCard')">🔄 Actualizar mis tareas ahora</button>
     <div id="msgAuto" class="status-box"></div>
   </div>
 
@@ -260,13 +274,87 @@
       </ul>
     </details>
 
-    <button id="btnSavePlatform" class="btn-secondary" onclick="saveAndSync('msgStep3')">Guardar enlace y actualizar ahora</button>
+    <button id="btnSavePlatform" class="btn-secondary" onclick="saveAndSync('msgStep3', 'btnSavePlatform')">Guardar enlace y actualizar ahora</button>
     <div id="msgStep3" class="status-box"></div>
   </div>
 
   <script>
     let currentAutoActive = false;
     let hasGoogleCodeSaved = false;
+
+    const COMMON_TIMEZONES = [
+      { value: 'America/Bogota', label: 'Colombia / Perú / Ecuador (Bogotá)' },
+      { value: 'America/Mexico_City', label: 'México Centro (CDMX)' },
+      { value: 'America/Santiago', label: 'Chile (Santiago)' },
+      { value: 'America/Argentina/Buenos_Aires', label: 'Argentina (Buenos Aires)' },
+      { value: 'America/Caracas', label: 'Venezuela (Caracas)' },
+      { value: 'America/Guayaquil', label: 'Ecuador (Guayaquil)' },
+      { value: 'America/Lima', label: 'Perú (Lima)' },
+      { value: 'America/Costa_Rica', label: 'Centroamérica (Costa Rica)' },
+      { value: 'America/Santo_Domingo', label: 'República Dominicana' },
+      { value: 'Europe/Madrid', label: 'España (Madrid)' },
+      { value: 'America/New_York', label: 'EE. UU. Este (Nueva York)' }
+    ];
+
+    function isUtcZone(tz) {
+      return !tz || /^(etc\/)?(utc|gmt)$/i.test(String(tz).trim());
+    }
+
+    function detectBrowserTimezone() {
+      try {
+        const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (detected && !isUtcZone(detected)) {
+          return detected;
+        }
+      } catch (e) {
+        // Fallback seguro abajo
+      }
+      return 'America/Bogota';
+    }
+
+    function formatTimezoneLabel(tz) {
+      const found = COMMON_TIMEZONES.find((z) => z.value === tz);
+      if (found) return found.label;
+      const parts = String(tz || 'America/Bogota').split('/');
+      const city = parts[parts.length - 1].replace(/_/g, ' ');
+      const region = parts.length > 1 ? parts[0].replace(/_/g, ' ') : '';
+      return region ? city + ' (' + region + ')' : city;
+    }
+
+    function renderTimezoneSelect(savedTz, hasSavedTz) {
+      const tzSelect = document.getElementById('timezone');
+      const detectedTz = detectBrowserTimezone();
+      const seen = new Set();
+      tzSelect.innerHTML = '';
+
+      const autoOpt = document.createElement('option');
+      autoOpt.value = detectedTz;
+      autoOpt.textContent = '🌍 Automática (detectada: ' + formatTimezoneLabel(detectedTz) + ')';
+      tzSelect.appendChild(autoOpt);
+      seen.add(detectedTz);
+
+      for (const item of COMMON_TIMEZONES) {
+        if (seen.has(item.value)) continue;
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        tzSelect.appendChild(opt);
+        seen.add(item.value);
+      }
+
+      const useSaved = Boolean(hasSavedTz) && !isUtcZone(savedTz);
+      if (useSaved) {
+        if (!seen.has(savedTz)) {
+          const customOpt = document.createElement('option');
+          customOpt.value = savedTz;
+          customOpt.textContent = formatTimezoneLabel(savedTz);
+          tzSelect.appendChild(customOpt);
+        }
+        tzSelect.value = savedTz;
+      } else {
+        tzSelect.value = detectedTz;
+      }
+    }
 
     function showMsg(elId, text, type) {
       const el = document.getElementById(elId);
@@ -326,23 +414,10 @@
 
     function renderState(state) {
       const cfg = state.config || {};
-      const tzSelect = document.getElementById('timezone');
-      if (cfg.TIMEZONE) {
-        let found = false;
-        for (const opt of tzSelect.options) {
-          if (opt.value === cfg.TIMEZONE) { found = true; break; }
-        }
-        if (!found) {
-          const extra = document.createElement('option');
-          extra.value = cfg.TIMEZONE;
-          extra.textContent = cfg.TIMEZONE;
-          tzSelect.appendChild(extra);
-        }
-        tzSelect.value = cfg.TIMEZONE;
-      }
+      renderTimezoneSelect(cfg.TIMEZONE, cfg.HAS_SAVED_TIMEZONE);
 
       document.getElementById('calendarLink').value = cfg.ICS_URL || '';
-      document.getElementById('gmailMode').value = cfg.GMAIL_MODE || 'label';
+      document.getElementById('gmailMode').value = cfg.GMAIL_MODE || 'institutional';
       document.getElementById('gmailLabel').value = cfg.GMAIL_LABEL || 'Universidad';
       updateMailLabelVisibility();
 
@@ -367,7 +442,7 @@
 
     function collectSettings() {
       return {
-        TIMEZONE: document.getElementById('timezone').value,
+        TIMEZONE: document.getElementById('timezone').value || detectBrowserTimezone(),
         ICS_URL: document.getElementById('calendarLink').value.trim(),
         GMAIL_MODE: document.getElementById('gmailMode').value,
         GMAIL_LABEL: document.getElementById('gmailLabel').value.trim(),
@@ -375,14 +450,18 @@
       };
     }
 
-    function saveAndSync(targetMsgId) {
+    function saveAndSync(targetMsgId, targetBtnId) {
       const msgId = targetMsgId || 'msgStep1';
-      const isPlatformBtn = msgId === 'msgStep3';
-      const btnId = isPlatformBtn ? 'btnSavePlatform' : 'btnSaveSync';
-      const defaultLabel = isPlatformBtn ? 'Guardar enlace y actualizar ahora' : 'Guardar y actualizar mis tareas ahora';
+      const btnId = targetBtnId || 'btnSaveSync';
+      const defaultLabels = {
+        btnSaveSync: 'Guardar y actualizar mis tareas ahora',
+        btnSyncNowCard: '🔄 Actualizar mis tareas ahora',
+        btnSavePlatform: 'Guardar enlace y actualizar ahora'
+      };
+      const defaultLabel = defaultLabels[btnId] || 'Guardar y actualizar mis tareas ahora';
 
       const settings = collectSettings();
-      if (!isPlatformBtn && !hasGoogleCodeSaved && !settings.GEMINI_API_KEY && !settings.ICS_URL) {
+      if (btnId === 'btnSaveSync' && !hasGoogleCodeSaved && !settings.GEMINI_API_KEY && !settings.ICS_URL) {
         showMsg(msgId, 'Primero saca y pega tu código gratuito de Google en el Paso 1 (o agrega un enlace opcional en el Paso 3).', 'warn');
         return;
       }
@@ -500,6 +579,7 @@
     }
 
     function loadState() {
+      renderTimezoneSelect('', false);
       google.script.run
         .withSuccessHandler(renderState)
         .apiGetState();

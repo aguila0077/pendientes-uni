@@ -299,6 +299,7 @@ function apiGetState() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ensureSheetStructure(ss);
   var config = getUserConfig();
+  var rawProps = PropertiesService.getScriptProperties().getProperties();
   var noteA1 = ss.getSheetByName(APP_CONSTANTS.SHEETS.RESUMEN).getRange('A1').getNote() || '';
   var triggerActive = hasSyncTrigger_();
   var versionInfo = checkForUpdatesCached(config);
@@ -307,6 +308,7 @@ function apiGetState() {
   return {
     config: {
       TIMEZONE: config.TIMEZONE,
+      HAS_SAVED_TIMEZONE: Boolean(rawProps[APP_CONSTANTS.PROP_KEYS.TIMEZONE]),
       ICS_URL: config.ICS_URL,
       GMAIL_MODE: config.GMAIL_MODE,
       GMAIL_LABEL: config.GMAIL_LABEL,

@@ -337,8 +337,13 @@ test('Propagación bidireccional [✅] entre Tasks, Sheet y Calendar', () => {
   assert.equal(prefixedTwice, '[✅] Taller 1 — Cálculo I', 'No debe duplicar [✅] ');
 });
 
-// 6. GmailConnector: precedencia booleana EdTech frente a -category:promotions
+// 6. GmailConnector: precedencia booleana EdTech frente a -category:promotions y default institutional
 test('GmailConnector protege dominios EdTech frente a -category:promotions', () => {
+  assert.equal(sandbox.getUserConfig().GMAIL_MODE, 'institutional', 'Default de GMAIL_MODE debe ser institutional');
+  const qDefault = sandbox.buildGmailSearchQuery({});
+  assert.ok(qDefault.includes('tarea OR taller'), 'Default sin modo debe buscar automáticamente correos académicos');
+  assert.ok(qDefault.includes('OR (-category:promotions))'));
+
   const qLabel = sandbox.buildGmailSearchQuery({ GMAIL_MODE: 'label', GMAIL_LABEL: 'Universidad' });
   assert.ok(qLabel.includes('label:"Universidad"'));
   assert.ok(qLabel.includes('((from:eltngl.com OR from:ngl.cengage.com OR moodle OR canvas OR blackboard OR brightspace) OR (-category:promotions))'));

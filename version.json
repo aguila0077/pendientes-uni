@@ -1,8 +1,8 @@
 {
-  "latestVersion": "1.0.2",
+  "latestVersion": "1.0.3",
   "releasedAt": "2026-11-25",
   "highlights": [
-    "Guía inicial con aviso explícito de recarga (F5) en 👋 Empieza_Aquí, prioridad en Correo + Google Chat y explicación clara de la revisión automática cada 2 horas."
+    "Zona horaria automática según navegador (sin Etc/UTC ni duplicados), lectura automática de correos sin exigir etiquetas, guía rápida de reenvío desde Outlook y botón Actualizar visible en el panel."
   ],
   "templateUrl": "https://docs.google.com/spreadsheets/d/1nGCviM1NnxJ_lSaAT1BQ-sH3ZC19uW1edq2WuseMN9Q/copy"
 }
