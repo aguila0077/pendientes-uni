@@ -163,7 +163,7 @@ function probarApiKeyGemini(apiKey, optFetcher) {
       var models = selectStableFlashModels(data.models || []);
       return {
         ok: true,
-        message: '¡Código verificado y guardado! Ya puedes leer correos y mensajes de WhatsApp.',
+        message: '¡Código verificado y guardado! Ya puedes leer correos y avisos de Google Chat.',
         models: models
       };
     }

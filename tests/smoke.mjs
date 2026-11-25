@@ -461,7 +461,9 @@ test('Pestaña 👋 Empieza_Aquí idempotente y formatHeartbeatForUser en españ
   assert.ok(sheets['👋 Empieza_Aquí'], 'Debe crear la pestaña 👋 Empieza_Aquí');
   assert.ok(sheets['Resumen_Tareas'], 'Debe mantener Resumen_Tareas');
   const firstRowCount = sheets['👋 Empieza_Aquí'].getLastRow();
-  assert.ok(firstRowCount >= 7, 'Debe escribir los 4 pasos de bienvenida');
+  assert.ok(firstRowCount >= 10, 'Debe escribir los 5 pasos de bienvenida incluyendo recarga');
+  const welcomeStep1 = sheets['👋 Empieza_Aquí'].getRange(4, 2, 1, 1).getValues()[0][0];
+  assert.ok(welcomeStep1.includes('Recarga esta página') && welcomeStep1.includes('F5'), 'Paso 1 debe indicar recarga inicial');
 
   // Segunda llamada no debe borrar ni fallar
   const sheets2 = sandbox.ensureSheetStructure(mockSs);

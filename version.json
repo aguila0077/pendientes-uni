@@ -1,8 +1,8 @@
 {
-  "latestVersion": "1.0.1",
+  "latestVersion": "1.0.2",
   "releasedAt": "2026-11-25",
   "highlights": [
-    "Rediseño completo a prueba de principiantes: textos en español 100% humano, guía integrada para Moodle/Canvas/Blackboard, menú simplificado y pestaña visual 👋 Empieza_Aquí."
+    "Guía inicial con aviso explícito de recarga (F5) en 👋 Empieza_Aquí, prioridad en Correo + Google Chat y explicación clara de la revisión automática cada 2 horas."
   ],
   "templateUrl": "https://docs.google.com/spreadsheets/d/1nGCviM1NnxJ_lSaAT1BQ-sH3ZC19uW1edq2WuseMN9Q/copy"
 }

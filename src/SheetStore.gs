@@ -108,21 +108,21 @@ function ensureWelcomeSheet_(ss) {
 
   var rows = [
     ['🎓 ¡Bienvenido a Pendientes Uni!'],
-    ['Conecta tus entregas de la universidad con Google Calendar y Google Tasks en tu celular en 3 minutos (sin saber programar).'],
+    ['Conecta los correos de tus profesores y avisos de Google Chat con Google Calendar y Google Tasks en tu celular en 3 minutos (sin saber programar).'],
     [''],
-    ['PASO 1', 'Haz clic arriba en el menú 🎓 Pendientes Uni → 🚀 Abrir asistente (Empezar aquí)'],
-    ['PASO 2', "Si Google te muestra una alerta que dice 'Google no ha verificado esta app', es normal porque es tu propia copia: haz clic en Opciones avanzadas → Ir a Pendientes Uni → Permitir"],
-    ['PASO 3', 'Sigue los 3 pasos del panel que se abre a la derecha'],
-    ['PASO 4', '¡Listo! Ya puedes cerrar esta página y ver tus tareas en Google Calendar y Google Tasks en tu celular'],
+    ['PASO 1', 'Recarga esta página una vez (presiona F5 o el botón 🔄 de tu navegador) hasta que veas el menú 🎓 Pendientes Uni arriba junto a Ayuda.'],
+    ['PASO 2', 'Haz clic arriba en el menú 🎓 Pendientes Uni → 🚀 Abrir asistente (Empezar aquí)'],
+    ['PASO 3', "Si Google te muestra una alerta que dice 'Google no ha verificado esta app', es normal porque es tu propia copia: haz clic en Opciones avanzadas → Ir a Pendientes Uni → Permitir"],
+    ['PASO 4', 'Sigue los pasos del panel que se abre a la derecha (conecta tu correo, prueba un aviso de Google Chat y activa la revisión automática)'],
+    ['PASO 5', '¡Listo! Ya puedes cerrar esta página y ver tus tareas en Google Calendar y Google Tasks en tu celular'],
     [''],
     ['💡 Tip: Las demás pestañas (Resumen_Tareas, Config_Materias, IDs_Procesados) se llenan solas automáticamente. No tienes que tocarlas.']
   ];
 
-  sheet.getRange(1, 1, rows.length, 1);
   sheet.getRange(1, 1, 1, 2).setValues([[rows[0][0], '']]);
   sheet.getRange(2, 1, 1, 2).setValues([[rows[1][0], '']]);
-  sheet.getRange(4, 1, 4, 2).setValues(rows.slice(3, 7));
-  sheet.getRange(9, 1, 1, 2).setValues([[rows[8][0], '']]);
+  sheet.getRange(4, 1, 5, 2).setValues(rows.slice(3, 8));
+  sheet.getRange(10, 1, 1, 2).setValues([[rows[9][0], '']]);
 
   try {
     if (typeof sheet.setHiddenGridlines === 'function') sheet.setHiddenGridlines(true);
@@ -144,33 +144,34 @@ function ensureWelcomeSheet_(ss) {
     if (typeof r2.setFontSize === 'function') r2.setFontSize(11);
     if (typeof r2.setWrap === 'function') r2.setWrap(true);
 
-    var badges = sheet.getRange(4, 1, 4, 1);
+    var badges = sheet.getRange(4, 1, 5, 1);
     if (typeof badges.setBackground === 'function') badges.setBackground('#dbeafe');
     if (typeof badges.setFontColor === 'function') badges.setFontColor('#1e40af');
     if (typeof badges.setFontSize === 'function') badges.setFontSize(12);
     badges.setFontWeight('bold');
     if (typeof badges.setVerticalAlignment === 'function') badges.setVerticalAlignment('middle');
 
-    var stepsRange = sheet.getRange(4, 2, 4, 1);
+    var stepsRange = sheet.getRange(4, 2, 5, 1);
     if (typeof stepsRange.setBackground === 'function') stepsRange.setBackground('#f8fafc');
     if (typeof stepsRange.setFontColor === 'function') stepsRange.setFontColor('#0f172a');
     if (typeof stepsRange.setFontSize === 'function') stepsRange.setFontSize(12);
     if (typeof stepsRange.setWrap === 'function') stepsRange.setWrap(true);
     if (typeof stepsRange.setVerticalAlignment === 'function') stepsRange.setVerticalAlignment('middle');
 
-    var r9 = sheet.getRange(9, 1, 1, 2);
-    if (typeof r9.merge === 'function') r9.merge();
-    if (typeof r9.setFontColor === 'function') r9.setFontColor('#475569');
-    if (typeof r9.setFontSize === 'function') r9.setFontSize(10);
-    if (typeof r9.setWrap === 'function') r9.setWrap(true);
+    var r10 = sheet.getRange(10, 1, 1, 2);
+    if (typeof r10.merge === 'function') r10.merge();
+    if (typeof r10.setFontColor === 'function') r10.setFontColor('#475569');
+    if (typeof r10.setFontSize === 'function') r10.setFontSize(10);
+    if (typeof r10.setWrap === 'function') r10.setWrap(true);
 
     if (typeof sheet.setRowHeight === 'function') {
-      sheet.setRowHeight(1, 48);
-      sheet.setRowHeight(2, 38);
-      sheet.setRowHeight(4, 54);
-      sheet.setRowHeight(5, 72);
-      sheet.setRowHeight(6, 54);
-      sheet.setRowHeight(7, 54);
+      sheet.setRowHeight(1, 52);
+      sheet.setRowHeight(2, 42);
+      sheet.setRowHeight(4, 62);
+      sheet.setRowHeight(5, 54);
+      sheet.setRowHeight(6, 76);
+      sheet.setRowHeight(7, 62);
+      sheet.setRowHeight(8, 54);
     }
   } catch (styleErr) {
     // Estilo visual opcional: nunca debe bloquear la inicialización

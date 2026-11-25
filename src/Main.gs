@@ -49,7 +49,7 @@ function ejecutarSincronizacionManual() {
     'Revisé tus tareas, pero hubo un problema temporal con alguna conexión.\n\n' +
     '• Tareas nuevas: ' + res.created + '\n' +
     '• Actualizadas: ' + res.updated + '\n\n' +
-    'Intenta de nuevo en unos minutos o revisa el enlace del Paso 1.'
+    'Intenta de nuevo en unos minutos o revisa tu configuración en el asistente.'
   );
 }
 
@@ -365,14 +365,14 @@ function apiTestGemini(apiKey) {
 function apiProcessManualNotice(text) {
   var clean = String(text || '').trim();
   if (!clean) {
-    return { ok: false, message: 'Pega primero el mensaje de WhatsApp en la caja.' };
+    return { ok: false, message: 'Pega primero el mensaje de Google Chat en la caja.' };
   }
 
   var config = getUserConfig();
   if (!config.GEMINI_API_KEY) {
     return {
       ok: false,
-      message: 'Primero completa el Paso 2 con tu código gratuito de Google para poder leer avisos de WhatsApp.'
+      message: 'Primero completa el Paso 1 con tu código gratuito de Google para poder leer avisos de Google Chat.'
     };
   }
 
@@ -382,7 +382,7 @@ function apiProcessManualNotice(text) {
   var aiRes = analizarTextoConGemini(
     clean,
     {
-      origen: 'WHATSAPP',
+      origen: 'GOOGLE_CHAT',
       idReferencia: 'manual:' + Date.now(),
       fechaMensajeIso: nowIso,
       subject: 'Aviso pegado manualmente',

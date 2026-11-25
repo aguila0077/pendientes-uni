@@ -5,7 +5,7 @@
 
 var APP_CONSTANTS = {
   APP_NAME: 'Pendientes Uni',
-  APP_VERSION: '1.0.1',
+  APP_VERSION: '1.0.2',
   CALENDAR_NAME: '🎓 Pendientes Uni',
   TASKS_LIST_NAME: '🎓 Pendientes Uni',
   SHEETS: {
