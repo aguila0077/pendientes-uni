@@ -1,8 +1,8 @@
 {
-  "latestVersion": "1.0.3",
+  "latestVersion": "1.0.4",
   "releasedAt": "2026-11-25",
   "highlights": [
-    "Zona horaria automática según navegador (sin Etc/UTC ni duplicados), lectura automática de correos sin exigir etiquetas, guía rápida de reenvío desde Outlook y botón Actualizar visible en el panel."
+    "Soporte 100% multi-cuenta (funciona en cuentas secundarias u/1, u/5 sin cerrar sesiones ni usar incógnito), estado inicial inyectado desde servidor, menú guiado 1-2-3-4 y autodetección de zona horaria desde Calendar/Sheet."
   ],
   "templateUrl": "https://docs.google.com/spreadsheets/d/1nGCviM1NnxJ_lSaAT1BQ-sH3ZC19uW1edq2WuseMN9Q/copy"
 }

@@ -165,9 +165,44 @@
       border-top: 1px solid var(--border);
       margin: 12px 0 4px 0;
     }
+    .multi-banner {
+      display: none;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #1e3a8a;
+    }
+    .multi-banner strong { color: #1d4ed8; }
+    .multi-banner ol {
+      margin: 8px 0 0 0;
+      padding-left: 18px;
+    }
+    .multi-banner li { margin-bottom: 5px; }
+    .is-multi-account .interactive-only { display: none !important; }
   </style>
 </head>
 <body>
+  <script id="initial-state" type="application/json"><?!= initialStateJson ?></script>
+
+  <div id="multiAccountBanner" class="multi-banner">
+    <strong>👋 Detectamos que tienes varias cuentas de Google abiertas en este navegador</strong>
+    <div style="margin-top:4px;">
+      Por seguridad, Google bloquea los botones dentro de este panel lateral cuando usas una cuenta secundaria, <strong>pero no tienes que cerrar tus otras cuentas ni abrir incógnito</strong>.
+    </div>
+    <div style="margin-top:6px;">
+      Usa directamente el menú de arriba <strong>🎓 Pendientes Uni</strong> (junto a Ayuda) en este orden:
+    </div>
+    <ol>
+      <li>Primero saca tu código gratis en el botón azul de abajo y luego haz clic arriba en <strong>🔑 1. Conectar código gratuito de Google</strong>.</li>
+      <li>Haz clic arriba en <strong>🔄 2. Actualizar mis tareas ahora</strong>.</li>
+      <li>Si tienes avisos de clase, usa <strong>💬 3. Pegar aviso de Google Chat</strong>.</li>
+      <li>Activa <strong>⏰ 4. Revisión automática cada 2 horas</strong>.</li>
+    </ol>
+  </div>
+
   <div class="card">
     <h2>✨ ¿Cómo va tu cuenta?</h2>
     <div>
@@ -194,27 +229,32 @@
       Este código <strong>NO</strong> es para entrar a tu correo ni es tu contraseña: solo activa el lector inteligente (IA gratis de Google) que lee los mensajes y saca automáticamente la materia, la tarea y la fecha.
     </div>
 
-    <label for="googleCode">Código gratuito de Google</label>
-    <input id="googleCode" type="password" placeholder="Pega aquí tu código gratuito de Google">
+    <div class="interactive-only">
+      <label for="googleCode">Código gratuito de Google</label>
+      <input id="googleCode" type="password" placeholder="Pega aquí tu código gratuito de Google">
 
-    <button id="btnTestGoogleCode" class="btn-secondary" onclick="testGoogleCode()">Probar y guardar código</button>
-    <div id="msgGoogleCode" class="status-box"></div>
+      <button id="btnTestGoogleCode" class="btn-secondary" onclick="testGoogleCode()">Probar y guardar código</button>
+      <div id="msgGoogleCode" class="status-box"></div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <label for="gmailMode">¿Cómo quieres que lea correos de tus profes?</label>
-    <select id="gmailMode" onchange="updateMailLabelVisibility()">
-      <option value="institutional">Buscar automáticamente correos de clases y tareas en este Gmail (Recomendado)</option>
-      <option value="label">Solo correos guardados en una carpeta específica</option>
-      <option value="off">No leer correos por ahora</option>
-    </select>
+      <label for="gmailMode">¿Cómo quieres que lea correos de tus profes?</label>
+      <select id="gmailMode" onchange="updateMailLabelVisibility()">
+        <option value="institutional">Buscar automáticamente correos de clases y tareas en este Gmail (Recomendado)</option>
+        <option value="label">Solo correos guardados en una carpeta específica</option>
+        <option value="off">No leer correos por ahora</option>
+      </select>
 
-    <div id="gmailLabelGroup" style="display:none;">
-      <label for="gmailLabel">Nombre de la carpeta/etiqueta en tu Gmail</label>
-      <input id="gmailLabel" type="text" value="Universidad">
-      <div class="hint">
-        Si guardas correos en una carpeta/etiqueta de Gmail, escribe su nombre exacto aquí (por defecto 'Universidad').
+      <div id="gmailLabelGroup" style="display:none;">
+        <label for="gmailLabel">Nombre de la carpeta/etiqueta en tu Gmail</label>
+        <input id="gmailLabel" type="text" value="Universidad">
+        <div class="hint">
+          Si guardas correos en una carpeta/etiqueta de Gmail, escribe su nombre exacto aquí (por defecto 'Universidad').
+        </div>
       </div>
+
+      <button id="btnSaveSync" onclick="saveAndSync('msgStep1', 'btnSaveSync')">Guardar y actualizar mis tareas ahora</button>
+      <div id="msgStep1" class="status-box"></div>
     </div>
 
     <details class="help-box">
@@ -222,15 +262,12 @@
       <ol>
         <li><strong>Opción rápida:</strong> Cuando un profe mande una entrega importante a tu correo universitario, simplemente reenvía ese correo a este Gmail personal y listo.</li>
         <li><strong>Opción automática (Outlook / correo U):</strong> Entra a la configuración de tu correo de la U → <em>Correo → Reenvío</em>, escribe este Gmail y guarda.</li>
-        <li><strong>¿Ya usas una carpeta propia?</strong> Cambia la opción de arriba a <em>"Solo correos guardados en una carpeta específica"</em> y escribe su nombre.</li>
+        <li><strong>¿Ya usas una carpeta propia?</strong> Cambia la opción en <em>🎓 Pendientes Uni → ⚙️ Más opciones → 📧 Cambiar cómo lee correos</em>.</li>
       </ol>
     </details>
-
-    <button id="btnSaveSync" onclick="saveAndSync('msgStep1', 'btnSaveSync')">Guardar y actualizar mis tareas ahora</button>
-    <div id="msgStep1" class="status-box"></div>
   </div>
 
-  <div class="card">
+  <div class="card interactive-only">
     <h2>2️⃣ 💬 Pegar aviso de Google Chat</h2>
     <div class="hint">
       Muchos profes avisan por el Google Chat de tu cuenta universitaria: solo copia el mensaje allá, pégalo aquí y lo agrego a tu Google Calendar y Google Tasks.
@@ -246,7 +283,7 @@
     <div id="msgManual" class="status-box"></div>
   </div>
 
-  <div class="card">
+  <div class="card interactive-only">
     <h2>🔄 Revisión automática cada 2 horas</h2>
     <div class="hint">
       Si lo activas, esta app revisará tus correos nuevos cada 2 horas y guardará tus tareas directamente en Google Calendar y Google Tasks, sin que tengas que volver a abrir esta hoja. Si lo dejas apagado, solo buscará tareas nuevas cuando tú entres aquí y hagas clic en Actualizar.
@@ -262,8 +299,10 @@
       Solo si tu universidad usa Moodle, Canvas o Blackboard y quieres importar su calendario. Si no sabes qué es esto, déjalo vacío.
     </div>
 
-    <label for="calendarLink">Enlace del calendario de tu plataforma</label>
-    <input id="calendarLink" type="url" placeholder="Opcional: pega aquí el enlace si tu U usa Moodle, Canvas o Blackboard...">
+    <div class="interactive-only">
+      <label for="calendarLink">Enlace del calendario de tu plataforma</label>
+      <input id="calendarLink" type="url" placeholder="Opcional: pega aquí el enlace si tu U usa Moodle, Canvas o Blackboard...">
+    </div>
 
     <details class="help-box">
       <summary>¿No sabes dónde sacar ese enlace? Toca aquí</summary>
@@ -274,8 +313,10 @@
       </ul>
     </details>
 
-    <button id="btnSavePlatform" class="btn-secondary" onclick="saveAndSync('msgStep3', 'btnSavePlatform')">Guardar enlace y actualizar ahora</button>
-    <div id="msgStep3" class="status-box"></div>
+    <div class="interactive-only">
+      <button id="btnSavePlatform" class="btn-secondary" onclick="saveAndSync('msgStep3', 'btnSavePlatform')">Guardar enlace y actualizar ahora</button>
+      <div id="msgStep3" class="status-box"></div>
+    </div>
   </div>
 
   <script>
@@ -578,14 +619,65 @@
         .apiProcessManualNotice(text);
     }
 
+    function readInitialState() {
+      try {
+        const el = document.getElementById('initial-state');
+        if (!el || !el.textContent) return null;
+        return JSON.parse(el.textContent);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setMultiAccountMode(isMulti) {
+      const banner = document.getElementById('multiAccountBanner');
+      if (isMulti) {
+        document.body.classList.add('is-multi-account');
+        banner.style.display = 'block';
+        document.getElementById('timezone').disabled = true;
+      } else {
+        document.body.classList.remove('is-multi-account');
+        banner.style.display = 'none';
+        document.getElementById('timezone').disabled = false;
+      }
+    }
+
     function loadState() {
-      renderTimezoneSelect('', false);
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        setMultiAccountMode(true);
+        return;
+      }
       google.script.run
         .withSuccessHandler(renderState)
+        .withFailureHandler(() => setMultiAccountMode(true))
         .apiGetState();
     }
 
-    window.addEventListener('load', loadState);
+    function initSidebar() {
+      const initial = readInitialState();
+      if (initial) {
+        renderState(initial);
+      } else {
+        renderTimezoneSelect('', false);
+      }
+
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        setMultiAccountMode(true);
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(() => {
+          setMultiAccountMode(false);
+          loadState();
+        })
+        .withFailureHandler(() => {
+          setMultiAccountMode(true);
+        })
+        .apiPing();
+    }
+
+    window.addEventListener('load', initSidebar);
   </script>
 </body>
 </html>

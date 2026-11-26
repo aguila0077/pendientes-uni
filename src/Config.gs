@@ -5,7 +5,7 @@
 
 var APP_CONSTANTS = {
   APP_NAME: 'Pendientes Uni',
-  APP_VERSION: '1.0.3',
+  APP_VERSION: '1.0.4',
   CALENDAR_NAME: '🎓 Pendientes Uni',
   TASKS_LIST_NAME: '🎓 Pendientes Uni',
   SHEETS: {
@@ -38,22 +38,91 @@ var APP_CONSTANTS = {
   RETENTION_DAYS_PROCESSED: 60
 };
 
+var COMMON_TIMEZONES = [
+  { value: 'America/Bogota', label: 'Colombia / Perú / Ecuador (Bogotá)' },
+  { value: 'America/Mexico_City', label: 'México Centro (CDMX)' },
+  { value: 'America/Santiago', label: 'Chile (Santiago)' },
+  { value: 'America/Argentina/Buenos_Aires', label: 'Argentina (Buenos Aires)' },
+  { value: 'America/Caracas', label: 'Venezuela (Caracas)' },
+  { value: 'America/Guayaquil', label: 'Ecuador (Guayaquil)' },
+  { value: 'America/Lima', label: 'Perú (Lima)' },
+  { value: 'America/Costa_Rica', label: 'Centroamérica (Costa Rica)' },
+  { value: 'America/Santo_Domingo', label: 'República Dominicana' },
+  { value: 'Europe/Madrid', label: 'España (Madrid)' },
+  { value: 'America/New_York', label: 'EE. UU. Este (Nueva York)' }
+];
+
 /**
- * Obtiene la zona horaria por defecto del script de forma segura.
+ * Indica si una zona horaria es vacía o genérica UTC/GMT.
+ * @param {string} tz
+ * @return {boolean}
+ */
+function isUtcTimezone_(tz) {
+  return !tz || /^(etc\/)?(utc|gmt)$/i.test(String(tz).trim());
+}
+
+/**
+ * Devuelve una etiqueta humana en español para una zona horaria IANA.
+ * @param {string} tz
+ * @return {string}
+ */
+function formatTimezoneLabel(tz) {
+  var clean = String(tz || 'America/Bogota').trim();
+  for (var i = 0; i < COMMON_TIMEZONES.length; i++) {
+    if (COMMON_TIMEZONES[i].value === clean) {
+      return COMMON_TIMEZONES[i].label;
+    }
+  }
+  var parts = clean.split('/');
+  var city = parts[parts.length - 1].replace(/_/g, ' ');
+  var region = parts.length > 1 ? parts[0].replace(/_/g, ' ') : '';
+  return region ? city + ' (' + region + ')' : city;
+}
+
+/**
+ * Autodetecta la zona horaria local real del usuario en el servidor (sin depender del Sidebar).
+ * Prioridad: Calendario principal -> Hoja de cálculo -> Script -> America/Bogota.
+ * Nunca devuelve Etc/UTC ni UTC.
  * @return {string}
  */
 function getDefaultTimezone_() {
   try {
+    if (typeof CalendarApp !== 'undefined' && CalendarApp && typeof CalendarApp.getDefaultCalendar === 'function') {
+      var cal = CalendarApp.getDefaultCalendar();
+      if (cal && typeof cal.getTimeZone === 'function') {
+        var calTz = cal.getTimeZone();
+        if (calTz && !isUtcTimezone_(calTz) && isValidTimezone_(calTz)) {
+          return String(calTz).trim();
+        }
+      }
+    }
+  } catch (eCal) {
+    // Continuar con siguientes fallbacks
+  }
+  try {
+    if (typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp && typeof SpreadsheetApp.getActiveSpreadsheet === 'function') {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      if (ss && typeof ss.getSpreadsheetTimeZone === 'function') {
+        var ssTz = ss.getSpreadsheetTimeZone();
+        if (ssTz && !isUtcTimezone_(ssTz) && isValidTimezone_(ssTz)) {
+          return String(ssTz).trim();
+        }
+      }
+    }
+  } catch (eSs) {
+    // Continuar con siguientes fallbacks
+  }
+  try {
     if (typeof Session !== 'undefined' && Session && typeof Session.getScriptTimeZone === 'function') {
       var tz = Session.getScriptTimeZone();
-      if (tz && String(tz).trim()) {
+      if (tz && !isUtcTimezone_(tz)) {
         return String(tz).trim();
       }
     }
   } catch (e) {
-    // Fallback seguro para entornos sin Session
+    // Fallback seguro abajo
   }
-  return 'UTC';
+  return 'America/Bogota';
 }
 
 /**

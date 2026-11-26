@@ -468,7 +468,7 @@ test('Pestaña 👋 Empieza_Aquí idempotente y formatHeartbeatForUser en españ
   const firstRowCount = sheets['👋 Empieza_Aquí'].getLastRow();
   assert.ok(firstRowCount >= 10, 'Debe escribir los 5 pasos de bienvenida incluyendo recarga');
   const welcomeStep1 = sheets['👋 Empieza_Aquí'].getRange(4, 2, 1, 1).getValues()[0][0];
-  assert.ok(welcomeStep1.includes('Recarga esta página') && welcomeStep1.includes('F5'), 'Paso 1 debe indicar recarga inicial');
+  assert.ok(welcomeStep1.includes('Recarga esta página') && welcomeStep1.includes('Ctrl+R'), 'Paso 1 debe indicar recarga inicial sin F5');
 
   // Segunda llamada no debe borrar ni fallar
   const sheets2 = sandbox.ensureSheetStructure(mockSs);
@@ -496,4 +496,33 @@ test('Pestaña 👋 Empieza_Aquí idempotente y formatHeartbeatForUser en españ
   assert.ok(!degStatus.summary.includes('DEGRADADO') && !degStatus.summary.includes('ics_err'));
 });
 
-console.log(`\nResumen smoke tests: ${passed}/9 pasaron.`);
+// 10. Soporte multi-cuenta: detección de zona horaria server-side, apiPing y renderizado SSR en Sidebar
+test('Soporte multi-cuenta: getDefaultTimezone_, formatTimezoneLabel, apiPing y Sidebar SSR', () => {
+  sandbox.CalendarApp = {
+    getDefaultCalendar: () => ({ getTimeZone: () => 'America/Mexico_City' })
+  };
+  assert.equal(sandbox.getDefaultTimezone_(), 'America/Mexico_City');
+  assert.equal(sandbox.formatTimezoneLabel('America/Mexico_City'), 'México Centro (CDMX)');
+
+  sandbox.CalendarApp = {
+    getDefaultCalendar: () => ({ getTimeZone: () => 'Etc/UTC' })
+  };
+  sandbox.SpreadsheetApp = {
+    getActiveSpreadsheet: () => ({ getSpreadsheetTimeZone: () => 'America/Lima' })
+  };
+  assert.equal(sandbox.getDefaultTimezone_(), 'America/Lima');
+
+  delete sandbox.CalendarApp;
+  delete sandbox.SpreadsheetApp;
+
+  const ping = sandbox.apiPing();
+  assert.equal(ping.ok, true);
+  assert.equal(ping.version, '1.0.4');
+
+  const sidebarHtml = fs.readFileSync(path.join(ROOT, 'src/Sidebar.html'), 'utf8');
+  assert.ok(sidebarHtml.includes('initialStateJson'), 'Sidebar debe recibir estado inicial SSR');
+  assert.ok(sidebarHtml.includes('multiAccountBanner'), 'Sidebar debe incluir guía para sesiones multi-cuenta');
+  assert.ok(sidebarHtml.includes('apiPing'), 'Sidebar debe probar conectividad RPC con apiPing');
+});
+
+console.log(`\nResumen smoke tests: ${passed}/10 pasaron.`);

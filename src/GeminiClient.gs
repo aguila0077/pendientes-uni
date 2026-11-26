@@ -170,7 +170,7 @@ function probarApiKeyGemini(apiKey, optFetcher) {
     if (res.statusCode === 401 || res.statusCode === 403 || res.statusCode === 400) {
       return {
         ok: false,
-        message: 'Ese código no funcionó. Revisa que lo hayas copiado completo desde el enlace de arriba.',
+        message: 'Ese código no funcionó. Revisa que lo hayas copiado completo desde Google AI Studio (aistudio.google.com/apikey).',
         models: []
       };
     }

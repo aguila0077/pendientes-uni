@@ -9,18 +9,46 @@ var SYNC_TRIGGER_HANDLER = 'ejecutarSincronizacion';
  * Se ejecuta al abrir la hoja de cálculo y crea el menú amigable.
  */
 function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('🎓 Pendientes Uni')
-    .addItem('🚀 Abrir asistente (Empezar aquí)', 'mostrarSidebar')
-    .addItem('🔄 Actualizar mis tareas ahora', 'ejecutarSincronizacionManual')
+  var ui = SpreadsheetApp.getUi();
+  var moreMenu = ui.createMenu('⚙️ Más opciones')
+    .addItem('🌍 Cambiar país / hora local', 'menuCambiarZonaHoraria')
+    .addItem('📧 Cambiar cómo lee correos', 'menuCambiarModoCorreos')
+    .addItem('🏫 Conectar Moodle / Canvas / Blackboard', 'menuConectarPlataformaIcs')
+    .addItem('📊 Ver estado de mi cuenta', 'menuVerEstadoCuenta');
+
+  ui.createMenu('🎓 Pendientes Uni')
+    .addItem('🚀 Abrir asistente visual', 'mostrarSidebar')
+    .addSeparator()
+    .addItem('🔑 1. Conectar código gratuito de Google', 'menuConectarCodigoGoogle')
+    .addItem('🔄 2. Actualizar mis tareas ahora', 'ejecutarSincronizacionManual')
+    .addItem('💬 3. Pegar aviso de Google Chat', 'menuPegarAvisoChat')
+    .addItem('⏰ 4. Revisión automática cada 2 horas', 'menuToggleRevisionAutomatica')
+    .addSeparator()
+    .addSubMenu(moreMenu)
     .addToUi();
 }
 
 /**
- * Muestra el asistente visual en la barra lateral derecha.
+ * Guarda la zona horaria autodetectada en servidor si todavía no existe una guardada.
+ * @private
+ */
+function ensureDefaultTimezonePersisted_() {
+  var rawProps = PropertiesService.getScriptProperties().getProperties();
+  if (!rawProps[APP_CONSTANTS.PROP_KEYS.TIMEZONE]) {
+    var detected = getDefaultTimezone_();
+    saveUserConfig({ TIMEZONE: detected });
+  }
+}
+
+/**
+ * Muestra el asistente visual en la barra lateral derecha con el estado inicial inyectado
+ * desde el servidor (funciona incluso con múltiples cuentas de Google abiertas).
  */
 function mostrarSidebar() {
-  var html = HtmlService.createHtmlOutputFromFile('src/Sidebar')
+  var state = apiGetState();
+  var tpl = HtmlService.createTemplateFromFile('src/Sidebar');
+  tpl.initialStateJson = JSON.stringify(state).replace(/</g, '\\u003c');
+  var html = tpl.evaluate()
     .setTitle('🎓 Pendientes Uni')
     .setWidth(360);
   SpreadsheetApp.getUi().showSidebar(html);
@@ -30,8 +58,22 @@ function mostrarSidebar() {
  * Ejecución manual desde el menú con feedback visual amigable en Sheets.
  */
 function ejecutarSincronizacionManual() {
-  var res = ejecutarSincronizacion();
+  ensureDefaultTimezonePersisted_();
+  var config = getUserConfig();
   var ui = SpreadsheetApp.getUi();
+  if (!config.GEMINI_API_KEY && !config.ICS_URL) {
+    ui.alert(
+      '🎓 ¡Falta un paso para empezar!',
+      'Todavía no has conectado tu código gratuito de Google ni un enlace de plataforma.\n\n' +
+      'Haz clic arriba en:\n' +
+      '🎓 Pendientes Uni → 🔑 1. Conectar código gratuito de Google\n\n' +
+      '(Toma 30 segundos y es 100% gratis).',
+      ui.ButtonSet.OK
+    );
+    return;
+  }
+
+  var res = ejecutarSincronizacion();
   if (res.skippedLock) {
     ui.alert('Ya estoy actualizando tus tareas en este momento. Espera unos segundos y revisa de nuevo.');
     return;
@@ -49,8 +91,211 @@ function ejecutarSincronizacionManual() {
     'Revisé tus tareas, pero hubo un problema temporal con alguna conexión.\n\n' +
     '• Tareas nuevas: ' + res.created + '\n' +
     '• Actualizadas: ' + res.updated + '\n\n' +
-    'Intenta de nuevo en unos minutos o revisa tu configuración en el asistente.'
+    'Intenta de nuevo en unos minutos o revisa tu configuración en 🎓 Pendientes Uni → ⚙️ Más opciones.'
   );
+}
+
+/**
+ * Paso 1 nativo (inmune a multi-cuenta): pide, prueba y guarda el código gratuito de Gemini.
+ */
+function menuConectarCodigoGoogle() {
+  var ui = SpreadsheetApp.getUi();
+  var res = ui.prompt(
+    '🔑 1. Conectar código gratuito de Google',
+    '1) Entra a: https://aistudio.google.com/apikey\n' +
+    '2) Haz clic en "Copiar clave de API" (o crea una gratis si no tienes).\n' +
+    '3) Pégala aquí abajo y presiona Aceptar.\n\n' +
+    '(Este código NO es tu contraseña; solo activa la IA gratuita para leer tus correos y avisos).',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+
+  var key = String(res.getResponseText() || '').trim();
+  var testRes = apiTestGemini(key);
+  if (!testRes.ok) {
+    ui.alert('No se pudo verificar el código', testRes.message, ui.ButtonSet.OK);
+    return;
+  }
+
+  ensureDefaultTimezonePersisted_();
+  ui.alert(
+    '✅ ¡Código verificado y guardado!',
+    testRes.message + '\n\nSiguiente paso: haz clic en\n🎓 Pendientes Uni → 🔄 2. Actualizar mis tareas ahora.',
+    ui.ButtonSet.OK
+  );
+}
+
+/**
+ * Paso 3 nativo (inmune a multi-cuenta): pega un aviso de Google Chat y lo sincroniza.
+ */
+function menuPegarAvisoChat() {
+  var ui = SpreadsheetApp.getUi();
+  var config = getUserConfig();
+  if (!config.GEMINI_API_KEY) {
+    ui.alert(
+      'Primero conecta tu código gratuito',
+      'Para entender avisos de Google Chat, primero entra a:\n🎓 Pendientes Uni → 🔑 1. Conectar código gratuito de Google.',
+      ui.ButtonSet.OK
+    );
+    return;
+  }
+
+  var promptRes = ui.prompt(
+    '💬 3. Pegar aviso de Google Chat',
+    'Copia y pega aquí el mensaje del profesor o grupo (ej. cambio de fecha de parcial, quiz nuevo o taller):',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (promptRes.getSelectedButton() !== ui.Button.OK) return;
+
+  var text = String(promptRes.getResponseText() || '').trim();
+  var out = apiProcessManualNotice(text);
+  if (!out.ok) {
+    ui.alert('No se pudo leer el aviso', out.message, ui.ButtonSet.OK);
+    return;
+  }
+
+  var lines = [];
+  var items = out.items || [];
+  for (var i = 0; i < items.length; i++) {
+    lines.push('• ' + items[i].Materia + ': ' + items[i].Actividad);
+  }
+  ui.alert(
+    '✅ ¡Listo! Agregado a tu Google Calendar y Google Tasks',
+    lines.length > 0 ? lines.join('\n') : 'Sin cambios nuevos (la tarea ya estaba actualizada).',
+    ui.ButtonSet.OK
+  );
+}
+
+/**
+ * Paso 4 nativo (inmune a multi-cuenta): activa o apaga la revisión automática cada 2 horas.
+ */
+function menuToggleRevisionAutomatica() {
+  var ui = SpreadsheetApp.getUi();
+  var active = hasSyncTrigger_();
+  var title = active ? '⏰ Revisión automática encendida' : '⏰ Revisión automática apagada';
+  var question = active
+    ? 'Actualmente tu cuenta revisa correos nuevos cada 2 horas automáticamente.\n\n¿Quieres APAGAR la revisión automática?'
+    : 'Si la enciendes, esta app revisará tus correos nuevos cada 2 horas y guardará tus tareas directo en Google Calendar y Google Tasks sin que abras esta hoja.\n\n¿Quieres ENCENDER la revisión automática cada 2 horas?';
+
+  var choice = ui.alert(title, question, ui.ButtonSet.YES_NO);
+  if (choice !== ui.Button.YES) return;
+
+  var res = apiToggleAutoTrigger(!active);
+  ui.alert(
+    res.triggerActive ? '✅ Revisión automática ENCENDIDA' : '⏸️ Revisión automática APAGADA',
+    res.triggerActive
+      ? '¡Listo! Revisará tus correos cada 2 horas y actualizará Google Calendar y Google Tasks automáticamente.'
+      : 'Revisión automática apagada. Ahora solo actualizará cuando tú uses "🔄 2. Actualizar mis tareas ahora".',
+    ui.ButtonSet.OK
+  );
+}
+
+/**
+ * Opción avanzada: muestra el estado actual de la cuenta en un diálogo limpio.
+ */
+function menuVerEstadoCuenta() {
+  var ui = SpreadsheetApp.getUi();
+  var state = apiGetState();
+  var cfg = state.config || {};
+  var lines = [
+    '• Revisión automática cada 2h: ' + (state.triggerActive ? '✅ Encendida' : '⏸️ Apagada'),
+    '• Código gratuito de Google: ' + (cfg.HAS_GEMINI_KEY ? '✅ Conectado' : '❌ Falta configurar'),
+    '• País / hora local: ' + formatTimezoneLabel(cfg.TIMEZONE),
+    '• Lectura de correos: ' + (cfg.GMAIL_MODE === 'off' ? 'Apagada' : (cfg.GMAIL_MODE === 'label' ? 'Carpeta "' + cfg.GMAIL_LABEL + '"' : 'Automática (sin carpetas)')),
+    '• Plataforma (.ics): ' + (cfg.ICS_URL ? 'Conectada' : 'No configurada (opcional)'),
+    '• ' + ((state.humanStatus && state.humanStatus.summary) || 'Todavía sin sincronizar.')
+  ];
+  ui.alert('📊 Estado de tu cuenta — Pendientes Uni', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+/**
+ * Opción avanzada: permite cambiar el país / zona horaria desde el menú.
+ */
+function menuCambiarZonaHoraria() {
+  var ui = SpreadsheetApp.getUi();
+  var currentTz = getUserConfig().TIMEZONE;
+  var opts = [];
+  for (var i = 0; i < COMMON_TIMEZONES.length; i++) {
+    opts.push((i + 1) + '. ' + COMMON_TIMEZONES[i].label);
+  }
+  var res = ui.prompt(
+    '🌍 Cambiar país / hora local',
+    'Actual: ' + formatTimezoneLabel(currentTz) + '\n\nEscribe el número de tu país (o código IANA):\n' + opts.join('\n'),
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+
+  var raw = String(res.getResponseText() || '').trim();
+  if (!raw) return;
+  var chosen = raw;
+  var num = parseInt(raw, 10);
+  if (!isNaN(num) && String(num) === raw && num >= 1 && num <= COMMON_TIMEZONES.length) {
+    chosen = COMMON_TIMEZONES[num - 1].value;
+  }
+
+  try {
+    var saved = saveUserConfig({ TIMEZONE: chosen });
+    ui.alert('✅ Hora local actualizada', 'Tu zona horaria ahora es: ' + formatTimezoneLabel(saved.TIMEZONE), ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('No se pudo cambiar la zona horaria', err.message, ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Opción avanzada: cambia cómo se leen los correos en Gmail.
+ */
+function menuCambiarModoCorreos() {
+  var ui = SpreadsheetApp.getUi();
+  var cfg = getUserConfig();
+  var res = ui.prompt(
+    '📧 Cambiar cómo lee correos',
+    'Actual: ' + (cfg.GMAIL_MODE === 'label' ? 'Carpeta "' + cfg.GMAIL_LABEL + '"' : (cfg.GMAIL_MODE === 'off' ? 'Apagado' : 'Automático (Recomendado)')) + '\n\n' +
+    'Escribe 1, 2 o 3:\n' +
+    '1 = Buscar automáticamente correos de clases y tareas (Recomendado)\n' +
+    '2 = Solo correos en una carpeta/etiqueta específica\n' +
+    '3 = No leer correos por ahora',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+
+  var choice = String(res.getResponseText() || '').trim();
+  if (choice === '1') {
+    saveUserConfig({ GMAIL_MODE: 'institutional' });
+    ui.alert('✅ Modo actualizado', 'Buscará automáticamente correos de clases y tareas sin que tengas que crear carpetas.', ui.ButtonSet.OK);
+  } else if (choice === '2') {
+    var lblRes = ui.prompt('Nombre de la carpeta/etiqueta', 'Escribe el nombre exacto de tu etiqueta en Gmail (ej. Universidad):', ui.ButtonSet.OK_CANCEL);
+    if (lblRes.getSelectedButton() !== ui.Button.OK) return;
+    var lbl = String(lblRes.getResponseText() || '').trim() || 'Universidad';
+    saveUserConfig({ GMAIL_MODE: 'label', GMAIL_LABEL: lbl });
+    ui.alert('✅ Modo actualizado', 'Solo leerá correos de la etiqueta "' + lbl + '".', ui.ButtonSet.OK);
+  } else if (choice === '3') {
+    saveUserConfig({ GMAIL_MODE: 'off' });
+    ui.alert('✅ Modo actualizado', 'Lectura automática de correos desactivada.', ui.ButtonSet.OK);
+  } else {
+    ui.alert('Opción no válida', 'Por favor escribe 1, 2 o 3.', ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Opción avanzada: conecta o quita el enlace .ics de Moodle / Canvas / Blackboard.
+ */
+function menuConectarPlataformaIcs() {
+  var ui = SpreadsheetApp.getUi();
+  var current = getUserConfig().ICS_URL;
+  var res = ui.prompt(
+    '🏫 Conectar Moodle / Canvas / Blackboard',
+    'Pega el enlace .ics del calendario de tu plataforma (déjalo vacío para quitarlo).\n\nActual: ' + (current || 'Ninguno'),
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+
+  var url = String(res.getResponseText() || '').trim();
+  try {
+    saveUserConfig({ ICS_URL: url });
+    ui.alert('✅ Enlace guardado', url ? 'Enlace de plataforma guardado. Usa "🔄 2. Actualizar mis tareas ahora" para importarlo.' : 'Enlace de plataforma eliminado.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('Enlace inválido', err.message, ui.ButtonSet.OK);
+  }
 }
 
 /**
@@ -289,6 +534,14 @@ function formatHumanSpanishDateTime_(dateObj, tz, nowDate) {
     return 'Hoy a las ' + timeLabel;
   }
   return dayNum + ' de ' + (months[monthIdx] || m[2]) + ', ' + timeLabel;
+}
+
+/**
+ * Ping ligero para verificar desde el Sidebar si google.script.run funciona o hay conflicto multi-cuenta.
+ * @return {{ok: boolean, version: string}}
+ */
+function apiPing() {
+  return { ok: true, version: APP_CONSTANTS.APP_VERSION };
 }
 
 /**

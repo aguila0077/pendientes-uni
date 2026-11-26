@@ -1,31 +1,27 @@
 # 🎓 Pendientes Uni — Guía rápida para estudiantes (3 minutos)
 
-Organiza automáticamente las entregas de tu universidad en **Google Calendar** y **Google Tasks** en tu celular, sin programar ni tocar código.
+Organiza automáticamente las entregas de tu universidad en **Google Calendar** y **Google Tasks** en tu celular, sin programar ni tocar código. Funciona incluso si tienes varias cuentas de Google abiertas en tu navegador.
 
 ---
 
 ## 1. Crea tu propia copia privada
-1. Abre el enlace `/copy` que recibiste y haz clic en **Hacer una copia**.
-2. Inicia sesión con tu **cuenta personal `@gmail.com`** (recomendado para evitar bloqueos de TI de la universidad).
-3. Espera unos 5 segundos a que aparezca el menú **🎓 Pendientes Uni** en la barra superior de Google Sheets.
+1. Abre el enlace `/copy` que recibiste y haz clic en **Crear una copia** (con la cuenta `@gmail.com` donde quieras recibir tus recordatorios).
+2. Recarga la página una vez haciendo clic en el botón **🔄 Recargar** de tu navegador (o presionando `Ctrl+R` / `Cmd+R`) y espera unos 5 segundos a que aparezca el menú **🎓 Pendientes Uni** arriba junto a *Ayuda*.
 
 ## 2. Concede permisos la primera vez ("App no verificada")
-Al abrir el asistente por primera vez, Google mostrará un aviso de seguridad porque tu copia corre bajo tu propia cuenta:
-1. Haz clic en **Continuar** y elige tu cuenta `@gmail.com`.
-2. Si aparece *"Google no ha verificado esta app"*, haz clic en **Opciones avanzadas** (abajo a la izquierda).
-3. Haz clic en **Ir a Pendientes Uni (no seguro)** y luego en **Permitir**.
+Al hacer clic en el menú **🎓 Pendientes Uni → 🚀 Abrir asistente visual** por primera vez, Google mostrará unos avisos normales porque tu copia corre dentro de tu propia cuenta:
+1. Si sale *"Se requiere autorización"*, haz clic en **Aceptar** y elige tu cuenta `@gmail.com`.
+2. Si aparece *"Google no verificó esta app"*, haz clic en **Configuración avanzada** (o *Opciones avanzadas*, abajo a la izquierda).
+3. Haz clic en **Ir a Pendientes Uni (no seguro)**.
+4. **Muy importante:** marca la casilla **Seleccionar todos** arriba de la lista de permisos, baja y haz clic en **Continuar**.
 
-## 3. Conecta tu Campus Virtual (sin API Key)
-1. En el menú superior ve a **🎓 Pendientes Uni → Abrir asistente**.
-2. En el **Paso 1**, elige tu zona horaria y pega tu enlace `.ics` del Campus Virtual:
-   - **Moodle:** *Calendario → Exportar calendario → Todos los eventos → Obtener URL del calendario*.
-   - **Canvas:** *Calendario → Fuente del calendario (abajo a la derecha) → Copiar enlace*.
-   - **Blackboard:** *Calendario → Configuración → Obtener enlace externo*.
-3. Haz clic en **Guardar y sincronizar ahora**.
-4. Listo: verás tus entregas con hora exacta en **Google Calendar** (calendario `🎓 Pendientes Uni`) y como lista de pendientes en **Google Tasks** (lista `🎓 Pendientes Uni`). Cuando marques una tarea como completada en Google Tasks, también se marcará con `✅` en tu calendario.
+## 3. Conecta tus correos, Google Chat y activa el modo automático
+Puedes hacerlo desde el **panel derecho** (si solo tienes una cuenta abierta) o directamente desde el menú superior **🎓 Pendientes Uni** (funciona siempre, incluso con varias cuentas abiertas):
+1. **🔑 1. Conectar código gratuito de Google:** entra a [Google AI Studio](https://aistudio.google.com/apikey), acepta el inicio si es tu primera vez, haz clic en **Copiar clave de API** (es 100% gratis) y pégala en el Paso 1. *(No es tu contraseña; solo activa la IA que lee correos y avisos).*
+2. **🔄 2. Actualizar mis tareas ahora:** lee automáticamente los correos de tus profesores sin que tengas que crear etiquetas y crea tus tareas en **Google Calendar** (calendario `🎓 Pendientes Uni`) y **Google Tasks** (lista `🎓 Pendientes Uni`, con la hora `[HH:mm]`).
+3. **💬 3. Pegar aviso de Google Chat:** si un profe avisa por chat de un cambio de fecha, parcial o quiz nuevo, copia y pega el mensaje ahí.
+4. **⏰ 4. Revisión automática cada 2 horas:** actívala para que se actualice solo sin volver a abrir esta hoja. Cuando marques una tarea como completada en Google Tasks, también aparecerá con `[✅]` en Google Calendar.
 
-## 4. (Opcional) Activa la IA para correos y WhatsApp
-1. Entra a [Google AI Studio](https://aistudio.google.com/apikey) y haz clic en **Create API key** (es gratuita).
-2. Pégala en el **Paso 2** del asistente y haz clic en **Probar conexión**.
-3. Si tu universidad usa otro correo (como Outlook), crea un reenvío automático de correos de profesores hacia tu `@gmail.com` con un filtro que les ponga la etiqueta **`Universidad`**.
-4. En el **Paso 3**, haz clic en **Activar automático 24/7** para que todo se actualice solo cada 2 horas, y usa la caja de texto cuando quieras pegar un aviso rápido de WhatsApp.
+## 4. (Opcional) Si tu universidad usa Outlook, Moodle, Canvas o Blackboard
+- **Correo en Outlook / otra cuenta:** configura reenvío automático desde tu correo universitario hacia este `@gmail.com` (o reenvía manualmente los correos importantes).
+- **Moodle / Canvas / Blackboard:** copia el enlace `.ics` de tu calendario estudiantil y pégalo en **🎓 Pendientes Uni → ⚙️ Más opciones → 🏫 Conectar Moodle / Canvas / Blackboard**.
